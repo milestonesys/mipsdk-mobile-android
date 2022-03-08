@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">PTZ Presets Sample</string>
+    <string name="app_long_name">Milestone MobileSDK PTZ Presets Sample</string>
+    <string name="app_version">Version</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="about">About</string>
+    <string name="connection_settings">Login details</string>
+    <string name="server_label">Server address</string>
+    <string name="address_hint">Address</string>
+    <string name="user_label">User name</string>
+    <string name="user_name_hint">User name</string>
+    <string name="password_label">Password</string>
+    <string name="password_hint">Password</string>
+    <string name="connect_fail">Could not connect</string>
+    <string name="bad_address">Could not connect (bad address)</string>
+    <string name="logging_in">Logging in…</string>
+    <string name="loading_cameras">Loading cameras…</string>
+    <string name="loading_camera">Loading camera</string>
+    <string name="error_getting_cameras">Error getting cameras list</string>
+    <string name="login_fail">Failed to login</string>
+    <string name="video_error">Error requesting video</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="msg_connection_lost">Connection Lost</string>
+    <string name="connecting">Connecting…</string>
+    <string name="port_label">Port</string>
+    <string name="port_hint">Port number</string>
+    <string name="ptz_presets_menu">PTZ presets</string>
+    <string name="menu_ptz_presets">PTZ Presets</string>
+    <string name="ptz_camera_not_found">No PTZ Camera found</string>
+    <string name="dialog_message">PTZ Presets Sample of Milestone MobileSDK.</string>
+    <string name="preset_failed_to_get">Failed to get PTZ Presets</string>
+    <string name="preset_success_activated">Success activated</string>
+    <string name="preset_failed_to_activate">Failed to activate</string>
+    <string name="video_view">Video view</string>
+</resources>

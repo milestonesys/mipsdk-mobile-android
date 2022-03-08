@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:transitionGroup="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface">
+
+        <View android:id="@+id/viewFiltersBackground"
+            app:layout_constraintTop_toTopOf="@id/textViewFiltersLabel"
+            app:layout_constraintBottom_toBottomOf="@id/textViewFiltersSummary"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:alpha="0.07"
+            android:background="?attr/colorOnSurface"/>
+
+        <TextView android:id="@+id/textViewFiltersLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/spacing_default"
+            android:textAlignment="viewStart"
+            android:textAllCaps="true"
+            android:text="@string/bookmarks_list_filters_headline"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"/>
+
+        <TextView android:id="@+id/textViewFiltersSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/spacing_default"
+            android:textAlignment="viewStart"
+            app:layout_constraintTop_toBottomOf="@id/textViewFiltersLabel"/>
+
+        <Button android:id="@+id/buttonChangeFilters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            android:text="@string/bookmarks_list_filters_change"
+            app:layout_constraintTop_toTopOf="@id/textViewFiltersLabel"
+            app:layout_constraintBottom_toBottomOf="@id/textViewFiltersLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/textViewFiltersSummary"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progressIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView android:id="@+id/textViewEmptyList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/spacing_default"
+            android:gravity="center_horizontal"
+            android:text="@string/bookmarks_list_empty_with_filters"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/buttonEmptyList"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            style="@style/TextAppearance.MaterialComponents.Body2"/>
+
+        <Button android:id="@+id/buttonEmptyList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bookmarks_list_empty_button_text_no_filters"
+            android:transitionName="create1"
+            app:layout_constraintTop_toBottomOf="@id/textViewEmptyList"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupMainContent"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            app:constraint_referenced_ids="
+                viewFiltersBackground,
+                textViewFiltersLabel,
+                textViewFiltersSummary,
+                buttonChangeFilters,
+                swipeRefreshLayout"/>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupEmptyContent"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            app:constraint_referenced_ids="
+                textViewEmptyList,
+                buttonEmptyList"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonCreateBookmark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/spacing_default"
+        android:src="@drawable/ic_baseline_bookmark_add_24"
+        android:transitionName="@string/create_transition_name"
+        android:contentDescription="@string/bookmarks_list_description_create_new"
+        android:visibility="gone"
+        app:backgroundTint="?attr/colorPrimary"
+        app:tint="?attr/colorOnPrimary" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Direct Streaming Sample</string>
+    <string name="app_long_name">Milestone MobileSDK Direct Streaming Sample</string>
+    <string name="app_version">Version</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="about">About</string>
+    <string name="connection_settings">Login details</string>
+    <string name="camera_list">Camera list</string>
+    <string name="server_label">Server address</string>
+    <string name="address_hint">Address</string>
+    <string name="user_label">User name</string>
+    <string name="user_name_hint">User name</string>
+    <string name="password_label">Password</string>
+    <string name="password_hint">Password</string>
+    <string name="connect_fail">Could not connect</string>
+    <string name="wrong_address">Could not connect (wrong address)</string>
+    <string name="logging_in">Logging in…</string>
+    <string name="loading_cameras">Loading cameras…</string>
+    <string name="loading_camera">Loading camera</string>
+    <string name="error_getting_cameras">Error getting cameras list</string>
+    <string name="login_fail">Failed to login</string>
+    <string name="video_error">Error requesting video</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="connecting">Connecting…</string>
+    <string name="port_label">Port</string>
+    <string name="port_hint">Port number</string>
+    <string name="connection">Connection</string>
+    <string name="conn_http">HTTP</string>
+    <string name="conn_https">HTTPS</string>
+    <string name="msg_connection_lost">Connection Lost</string>
+    <string name="alert_dlg_about_msg">Direct Streaming of Milestone MobileSDK.</string>
+    <string name="video_view">Video view</string>
+    <string name="error_support_direct_streaming">Camera does not support Direct streaming \nor fallback has occurred </string>
+    <string name="select_camera">Select camera:</string>
+    <string name="msg_camera_connection_lost">Camera connection lost</string>
+</resources>

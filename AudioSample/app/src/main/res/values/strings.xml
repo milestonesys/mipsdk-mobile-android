@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">AudioSample</string>
+    <string name="app_title">Audio Sample</string>
+    <string name="cameras_list_title">Cameras that have a microphone</string>
+    <string name="cameras_list_empty">No cameras with a microphone found on this server.</string>
+    <string name="cameras_list_audio_disabled">Audio is disabled for this server.</string>
+    <string name="cameras_list_error_button_text">Try another</string>
+    <string name="fragment_title_cameras_list">Cameras list</string>
+    <string name="fragment_title_camera_details">Play audio</string>
+    <string name="fragment_title_about">About</string>
+    <string name="preferences_address">address</string>
+    <string name="preferences_port">port</string>
+    <string name="preferences_user">user</string>
+    <string name="preferences_pass">pass</string>
+    <string name="description_camera">camera</string>
+    <string name="description_microphone">microphone</string>
+    <string name="description_speaker">speaker</string>
+    <string name="details_transition_name">transition_details</string>
+    <string name="login_hint_address">Server address</string>
+    <string name="login_hint_port">Server port</string>
+    <string name="login_default_port">8081</string>
+    <string name="login_hint_username">Username</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_button_text">Log in</string>
+    <string name="error_connect">Unable to connect to a server with the provided details.</string>
+    <string name="error_login">Unable to log in with the provided credentials.</string>
+    <string name="error_network">Network error.</string>
+    <string name="error_play_audio">Unable to play audio from this microphone.</string>
+    <string name="error_play_not_supported">Unable to play audio from this microphone. Live audio is not supported.</string>
+    <string name="error_cameras">Unable to get the list of cameras for this server.</string>
+    <string name="error_feature_disabled">Unable to play audio. Feature is disabled on the server.</string>
+    <string name="error_insufficient_rights">Unable to play audio. Insufficient user rights.</string>
+    <string name="button_play">Play audio</string>
+    <string name="button_stop">Stop audio</string>
+    <string name="menu_item_about">About</string>
+    <string name="menu_item_logout">Log out</string>
+    <string name="about_title">Audio sample of MIP SDK Mobile</string>
+    <string name="about_content">
+"This sample application demonstrates how to use the MIP SDK Mobile to play audio from the microphone of a camera.
+
+The application contains a login screen where users need to provide login details for a Mobile Server.
+
+After successful login the application loads from the server a list will all cameras that have a microphone.
+
+When users select a camera from the list they are able play live audio from this camera's microphone."
+    </string>
+</resources>

@@ -1,0 +1,3 @@
+include ':mipsdkmobile'
+include ':app'
+rootProject.name = "AudioSample"

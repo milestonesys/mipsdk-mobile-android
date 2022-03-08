@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Playback Sample</string>
+    <string name="login_title">Login</string>
+    <string name="camera_list_title">Camera List</string>
+    <string name="playback_title">Playback</string>
+    <string name="about">About</string>
+    <string name="app_version">Version</string>
+    <string name="app_long_name">Milestone MobileSDK Playback Video Sample</string>
+    <string name="loading">Loading…</string>
+    <string name="dlg_about_message">Playback Video Sample of Milestone MobileSDK.</string>
+    <string name="server_address">Server Address</string>
+    <string name="server_port">Server Port</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="video_view">Video view</string>
+</resources>

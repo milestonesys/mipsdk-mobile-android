@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="?attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/textViewBookmarkCamera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_default"
+        android:paddingTop="16dp"
+        android:textAlignment="viewStart"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/textViewBookmarkName"
+        tools:text="Camera 1"
+        style="@style/TextAppearance.MaterialComponents.Overline"/>
+
+    <TextView
+        android:id="@+id/textViewBookmarkName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_default"
+        android:paddingVertical="4dp"
+        android:textAlignment="viewStart"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintTop_toBottomOf="@id/textViewBookmarkCamera"
+        app:layout_constraintBottom_toTopOf="@id/textViewBookmarkDescription"
+        tools:text="BookmarkName"
+        style="@style/TextAppearance.MaterialComponents.Subtitle1"/>
+
+
+    <TextView
+        android:id="@+id/textViewBookmarkDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_default"
+        android:paddingBottom="12dp"
+        android:textAlignment="viewStart"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintTop_toBottomOf="@id/textViewBookmarkName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="BookmarkDescription"
+        style="@style/TextAppearance.MaterialComponents.Caption"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

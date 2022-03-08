@@ -1,0 +1,158 @@
+<resources>
+    <!-- Application -->
+    <string name="app_name">BookmarksSample</string>
+    <string name="app_title">Bookmarks Sample</string>
+    <string name="details_transition_name">transition_details</string>
+    <string name="create_transition_name">transition_create</string>
+
+    <!-- Menu -->
+    <string name="menu_item_apply">APPLY</string>
+    <string name="menu_item_save">SAVE</string>
+    <string name="menu_item_filter">Filter</string>
+    <string name="menu_item_edit">Edit</string>
+    <string name="menu_item_delete">Delete</string>
+    <string name="menu_item_about">About</string>
+    <string name="menu_item_logout">Log out</string>
+
+    <!-- Login -->
+    <string name="preferences_address">address</string>
+    <string name="preferences_port">port</string>
+    <string name="preferences_user">user</string>
+    <string name="preferences_pass">pass</string>
+    <string name="login_hint_address">Server address</string>
+    <string name="login_hint_port">Server port</string>
+    <string name="login_default_port">8081</string>
+    <string name="login_hint_username">Username</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_button_text">Log in</string>
+
+    <!-- Bookmarks List -->
+    <string name="fragment_title_bookmarks_list">Bookmarks list</string>
+    <string name="bookmarks_list_title">Bookmarks</string>
+    <string name="bookmarks_list_empty_no_filters">No bookmarks found on this server.</string>
+    <string name="bookmarks_list_empty_with_filters">No results, try refining the filters.</string>
+    <string name="bookmarks_list_empty_feature_disabled">Bookmarks are disabled for this server.</string>
+    <string name="bookmarks_list_empty_error">Unable to retrieve the bookmarks for this server.</string>
+    <string name="bookmarks_list_empty_button_text_no_filters">Create new</string>
+    <string name="bookmarks_list_empty_button_text_with_filters">Open filters</string>
+    <string name="bookmarks_list_empty_button_text_another">Try another</string>
+    <string name="bookmarks_list_empty_button_text_retry">Try again</string>
+    <string name="bookmarks_list_filters_headline">Filters</string>
+    <string name="bookmarks_list_filters_change">Change</string>
+    <string name="bookmarks_list_filters_summary_added_by">Added by %1$s</string>
+    <string name="bookmarks_list_filters_summary_empty">None</string>
+    <string name="bookmarks_list_description_create_new">New bookmark</string>
+
+    <!-- Bookmarks Filter -->
+    <string name="fragment_title_bookmarks_filter">Filter bookmarks</string>
+    <string name="bookmarks_filter_by_text_hint">Filter by text</string>
+    <string name="bookmarks_filter_by_time_hint">Filter by time</string>
+    <string name="bookmarks_filter_by_camera_hint">Filter by camera</string>
+    <string name="bookmarks_filter_by_author_hint">Filter by author</string>
+    <string name="bookmarks_filter_by_time_any">Anytime</string>
+    <string name="bookmarks_filter_by_time_2_hours">Last 2 hours</string>
+    <string name="bookmarks_filter_by_time_6_hours">Last 6 hours</string>
+    <string name="bookmarks_filter_by_time_12_hours">Last 12 hours</string>
+    <string name="bookmarks_filter_by_time_24_hours">Last 24 hours</string>
+    <string name="bookmarks_filter_by_time_today">Today</string>
+    <string name="bookmarks_filter_by_time_yesterday">Yesterday</string>
+    <string name="bookmarks_filter_by_time_7_days">Last 7 days</string>
+    <string name="bookmarks_filter_by_camera_value_any">Any camera</string>
+    <string name="bookmarks_filter_reset_all">Reset filters</string>
+    <string-array name="bookmarks_filter_by_time_values">
+        <item>Anytime</item>
+        <item>Last 2 hours</item>
+        <item>Last 6 hours</item>
+        <item>Last 12 hours</item>
+        <item>Last 24 hours</item>
+        <item>Today</item>
+        <item>Yesterday</item>
+        <item>Last 7 days</item>
+    </string-array>
+    <string-array name="bookmarks_filter_by_author_values">
+        <item>Anyone</item>
+        <item>Just me</item>
+    </string-array>
+
+    <!-- Bookmark Details -->
+    <string name="fragment_title_bookmark_details">Details</string>
+    <string name="bookmark_details_icon_description">Bookmark icon</string>
+    <string name="bookmark_details_section_time">Time interval</string>
+    <string name="bookmark_details_section_information">Information</string>
+    <string name="bookmark_details_header_start">Start</string>
+    <string name="bookmark_details_header_end">End</string>
+    <string name="bookmark_details_header_camera">Camera</string>
+    <string name="bookmark_details_header_id">Bookmark ID</string>
+    <string name="bookmark_details_header_author">Added by</string>
+    <string name="bookmark_details_header_time">Bookmark time</string>
+    <string name="bookmark_details_video_description">Bookmark video</string>
+    <string name="bookmark_details_video_button_description">Play/pause video</string>
+    <string name="bookmark_details_delete_button_confirm">Delete</string>
+    <string name="bookmark_details_delete_button_cancel">Cancel</string>
+    <string name="bookmark_details_delete_confirm_message">Delete bookmark?</string>
+
+    <!-- Bookmark Create -->
+    <string name="fragment_title_bookmark_add">Add bookmark</string>
+    <string name="bookmark_default_headline_quick">Quick bookmark</string>
+    <string name="bookmark_default_headline_detailed">Detailed bookmark</string>
+    <string name="bookmark_create_go_to_details">Add details</string>
+    <string name="bookmark_create_hint_type">Bookmark type</string>
+    <string name="bookmark_create_hint_camera">Camera</string>
+    <string name="bookmark_create_hint_headline">Headline</string>
+    <string name="bookmark_create_hint_description">Description</string>
+    <string name="bookmark_create_hint_date">Date</string>
+    <string name="bookmark_create_hint_time">Time</string>
+    <string name="bookmark_create_hint_pre_bookmark_time">Pre-bookmark time</string>
+    <string name="bookmark_create_hint_post_bookmark_time">Post-bookmark time</string>
+
+    <string-array name="bookmarks_create_type_values">
+        <item>Quick bookmark (Live)</item>
+        <item>Detailed bookmark (Live)</item>
+        <item>Detailed bookmark (Playback)</item>
+    </string-array>
+
+    <!-- Bookmark Edit -->
+    <string name="fragment_title_bookmark_edit">Edit bookmark</string>
+
+    <!-- Success Messages -->
+    <string name="success_bookmark_add">The bookmark is added.</string>
+    <string name="success_bookmark_update">Your changes were successfully saved.</string>
+    <string name="success_bookmark_delete">The bookmark was successfully deleted.</string>
+
+    <!-- Error Messages -->
+    <string name="error_connect">Unable to connect to a server with the provided details.</string>
+    <string name="error_login">Unable to log in with the provided credentials.</string>
+    <string name="error_network">Network error.</string>
+    <string name="error_bookmarks">Unable to get the list of bookmarks for this server.</string>
+    <string name="error_cameras">Unable to get the list of cameras for this server.</string>
+    <string name="error_no_data">No recordings found.</string>
+
+    <string name="error_bookmark_add">Failed to add the bookmark.</string>
+    <string name="error_bookmark_read">You may not have sufficient user rights to open the bookmark, or the bookmark may not exist.</string>
+    <string name="error_bookmark_update">Failed to save your changes.</string>
+    <string name="error_bookmark_delete">Failed to delete the bookmark.</string>
+    <string name="error_bookmark_add_disabled">You do not have sufficient user rights to create this bookmark.</string>
+    <string name="error_bookmark_update_disabled">You do not have sufficient user rights to update this bookmark.</string>
+    <string name="error_bookmark_delete_disabled">You do not have sufficient user rights to delete this bookmark.</string>
+
+    <string name="error_date_input">Incorrect input. Example: </string>
+    <string name="error_headline_required">The headline is required.</string>
+
+    <!-- About -->
+    <string name="fragment_title_about">About</string>
+    <string name="about_title">Bookmarks sample of MIP SDK Mobile</string>
+    <string name="about_content">
+"This sample application demonstrates how to use the MIP SDK Mobile to use the bookmark feature.
+
+The application contains a login screen where users need to provide login details for a Mobile Server.
+
+After successful login the application loads from the server a list with all bookmarks.
+
+Users are able to select a bookmark from the list to see its details and to update or delete it.
+
+They can also press the button in the top right corner of the bookmarks list to go to the filters screen and apply new filters.
+
+Another option is to press the button in the bottom right corner and create a new bookmark."
+    </string>
+
+</resources>

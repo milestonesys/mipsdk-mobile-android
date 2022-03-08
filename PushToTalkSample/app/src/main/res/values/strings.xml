@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">PushToTalkSample</string>
+    <string name="about">About</string>
+    <string name="login_title">Login</string>
+    <string name="loading">Loading…</string>
+    <string name="app_long_name">Milestone MobileSDK Push To Talk Sample</string>
+    <string name="btnPTT">PTT</string>
+    <string name="camera_list_title">Camera List</string>
+    <string name="push_to_talk_title">Push to talk</string>
+    <string name="dialog_message">Push to talk sample of Milestone MobileSDK.</string>
+    <string name="error_request_stream_id">Error requesting stream id.</string>
+    <string name="server_address">Server Address</string>
+    <string name="server_port">Server Port</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+</resources>

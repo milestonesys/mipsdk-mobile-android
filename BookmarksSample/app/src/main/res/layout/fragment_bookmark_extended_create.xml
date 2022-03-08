@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:transitionGroup="true"
+    tools:context=".ui.view.BookmarkExtendedCreateFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView android:id="@+id/bookmarkIdHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/spacing_default"
+            android:layout_marginTop="@dimen/spacing_default"
+            android:text="@string/bookmark_details_header_id"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+        <TextView android:id="@+id/bookmarkIdContent"
+            android:paddingHorizontal="@dimen/spacing_default"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="no.0033"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkIdHeader"
+            style="@style/TextAppearance.MaterialComponents.Caption"/>
+        <View android:id="@+id/bookmarkIdUnderline"
+            android:background="?android:attr/listDivider"
+            android:layout_marginVertical="@dimen/spacing_small"
+            android:layout_marginHorizontal="@dimen/spacing_default"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkIdContent"/>
+
+        <TextView android:id="@+id/cameraNameHeader"
+            android:paddingHorizontal="@dimen/spacing_default"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/bookmark_details_header_camera"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkIdUnderline"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+        <TextView android:id="@+id/cameraNameContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/spacing_default"
+            tools:text="Camera 1"
+            app:layout_constraintTop_toBottomOf="@id/cameraNameHeader"
+            style="@style/TextAppearance.MaterialComponents.Caption"/>
+        <View android:id="@+id/cameraNameUnderline"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="@dimen/spacing_small"
+            android:layout_marginHorizontal="@dimen/spacing_default"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintTop_toBottomOf="@id/cameraNameContent"/>
+
+        <TextView android:id="@+id/bookmarkTimeHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/spacing_default"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@string/bookmark_details_header_time"
+            app:layout_constraintTop_toBottomOf="@id/cameraNameUnderline"
+            app:layout_constraintStart_toStartOf="parent"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"/>
+        <TextView android:id="@+id/bookmarkTimeContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/spacing_default"
+            tools:text="12/12/12 12:12:12"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkTimeHeader"
+            style="@style/TextAppearance.MaterialComponents.Caption"/>
+        <Space android:id="@+id/bookmarkTimeSpace"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/spacing_default"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkTimeContent"/>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/bookmarkCamera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_default"
+            android:hint="@string/bookmark_create_hint_camera"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkTimeSpace"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                tools:text="Camera 1"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/bookmarkDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_default"
+            android:layout_marginTop="@dimen/spacing_default"
+            android:hint="@string/bookmark_create_hint_date"
+            app:errorEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkCamera"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewStart"
+                android:inputType="date"
+                tools:text="Date"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/bookmarkTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_default"
+            android:layout_marginTop="@dimen/spacing_mini"
+            app:errorEnabled="true"
+            android:hint="@string/bookmark_create_hint_time"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkDate"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewStart"
+                android:inputType="time"
+                tools:text="Time"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/bookmarkHeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_default"
+            android:layout_marginTop="@dimen/spacing_mini"
+            app:errorEnabled="true"
+            android:hint="@string/bookmark_create_hint_headline"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkTime"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewStart"
+                android:inputType="textMultiLine"
+                android:maxLength="50"
+                tools:text="Headline"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/bookmarkDescription"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_default"
+            android:layout_marginTop="@dimen/spacing_mini"
+            android:hint="@string/bookmark_create_hint_description"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkHeadline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewStart"
+                android:inputType="textMultiLine"
+                android:maxLength="10000"
+                tools:text="Description"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/bookmarkPreBookmarkTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_default"
+            android:hint="@string/bookmark_create_hint_pre_bookmark_time"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkDescription"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                tools:text="3 sec"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/bookmarkPostBookmarkTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_default"
+            android:hint="@string/bookmark_create_hint_post_bookmark_time"
+            app:layout_constraintTop_toBottomOf="@id/bookmarkPreBookmarkTime"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                tools:text="30 sec"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupReadOnlyFields"
+            android:visibility="gone"
+            app:constraint_referenced_ids="
+                cameraNameContent,
+                cameraNameHeader,
+                cameraNameUnderline,
+                bookmarkIdHeader,
+                bookmarkIdContent,
+                bookmarkIdUnderline,
+                bookmarkTimeContent,
+                bookmarkTimeHeader,
+                bookmarkTimeSpace"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupNotReadOnlyFields"
+            android:visibility="visible"
+            app:constraint_referenced_ids="
+                bookmarkCamera,
+                bookmarkDate,
+                bookmarkTime"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

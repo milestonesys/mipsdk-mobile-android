@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:transitionName="@string/details_transition_name">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:paddingVertical="@dimen/spacing_small"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+        <ImageView
+            android:id="@+id/imageViewCamera"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/spacing_default"
+            android:src="@drawable/ic_baseline_videocam_24"
+            android:contentDescription="@string/description_camera"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/textViewCameraName"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:id="@+id/textViewCameraName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:paddingVertical="@dimen/spacing_small"
+            android:textAlignment="viewStart"
+            android:maxLines="4"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageViewCamera"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Camera Name" />
+
+        <ImageView
+            android:id="@+id/imageViewMic"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/spacing_default"
+            android:src="@drawable/ic_baseline_mic_24"
+            android:contentDescription="@string/description_microphone"
+            app:layout_constraintTop_toTopOf="@id/textViewMicName"
+            app:layout_constraintBottom_toBottomOf="@id/textViewMicName"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:id="@+id/textViewMicName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:paddingVertical="@dimen/spacing_small"
+            android:textAlignment="viewStart"
+            android:maxLines="4"
+            android:ellipsize="end"
+            app:layout_constraintTop_toBottomOf="@id/textViewCameraName"
+            app:layout_constraintStart_toEndOf="@id/imageViewMic"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Microphone Name" />
+
+        <ImageView
+            android:id="@+id/imageViewSpeaker"
+            android:layout_width="@dimen/speaker_size"
+            android:layout_height="@dimen/speaker_size"
+            android:layout_marginHorizontal="@dimen/spacing_default"
+            android:src="@drawable/ic_mute"
+            android:contentDescription="@string/description_speaker"
+            app:layout_constraintTop_toBottomOf="@id/textViewMicName"
+            app:layout_constraintBottom_toTopOf="@id/buttonPlayAudio"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <Button
+            android:id="@+id/buttonPlayAudio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_play"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewSpeaker"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progressIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:layout_constraintTop_toTopOf="@id/imageViewSpeaker"
+            app:layout_constraintBottom_toBottomOf="@id/imageViewSpeaker"
+            app:layout_constraintStart_toStartOf="@id/imageViewSpeaker"
+            app:layout_constraintEnd_toEndOf="@id/imageViewSpeaker" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment android:id="@+id/loginFragment"
+        android:name="com.milestonesys.mobilesdk.bookmarkssample.ui.view.LoginFragment"
+        android:label="@string/app_title"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_bookmarksListFragment"
+            app:destination="@id/bookmarksListFragment"
+            app:popUpTo="@id/nav_graph" />
+        <action
+            android:id="@+id/action_loginFragment_to_aboutFragment"
+            app:destination="@id/aboutFragment" />
+    </fragment>
+    <fragment android:id="@+id/bookmarksListFragment"
+        android:name="com.milestonesys.mobilesdk.bookmarkssample.ui.view.BookmarksListFragment"
+        android:label="@string/fragment_title_bookmarks_list"
+        tools:layout="@layout/fragment_bookmarks_list" >
+        <action
+            android:id="@+id/action_bookmarksListFragment_to_bookmarkDetailsFragment"
+            app:destination="@id/bookmarkDetailsFragment" />
+        <action
+            android:id="@+id/action_bookmarksListFragment_to_bookmarkCreateFragment"
+            app:destination="@id/bookmarkCreateFragment" />
+        <action
+            android:id="@+id/action_bookmarksListFragment_to_bookmarksFilterFragment"
+            app:destination="@id/bookmarksFilterFragment" />
+    </fragment>
+    <fragment android:id="@+id/bookmarkDetailsFragment"
+        android:name="com.milestonesys.mobilesdk.bookmarkssample.ui.view.BookmarkDetailsFragment"
+        android:label="@string/fragment_title_bookmark_details"
+        tools:layout="@layout/fragment_bookmark_details">
+        <action
+            android:id="@+id/action_bookmarkDetailsFragment_to_bookmarkEditFragment"
+            app:destination="@id/bookmarkEditFragment" />
+    </fragment>
+    <fragment android:id="@+id/bookmarksFilterFragment"
+        android:name="com.milestonesys.mobilesdk.bookmarkssample.ui.view.BookmarksFilterFragment"
+        android:label="@string/fragment_title_bookmarks_filter"
+        tools:layout="@layout/fragment_bookmarks_filter">
+    </fragment>
+    <fragment android:id="@+id/bookmarkCreateFragment"
+        android:name="com.milestonesys.mobilesdk.bookmarkssample.ui.view.BookmarkCreateFragment"
+        android:label="@string/fragment_title_bookmark_add"
+        tools:layout="@layout/fragment_bookmark_create" >
+        <action
+            android:id="@+id/action_bookmarkCreateFragment_to_bookmarkExtendedCreateFragment"
+            app:destination="@id/bookmarkExtendedCreateFragment" />
+    </fragment>
+    <fragment android:id="@+id/bookmarkExtendedCreateFragment"
+        android:name="com.milestonesys.mobilesdk.bookmarkssample.ui.view.BookmarkExtendedCreateFragment"
+        android:label="@string/fragment_title_bookmark_add"
+        tools:layout="@layout/fragment_bookmark_extended_create" >
+        <argument
+            android:name="cameraId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <fragment android:id="@+id/bookmarkEditFragment"
+        android:name="com.milestonesys.mobilesdk.bookmarkssample.ui.view.BookmarkEditFragment"
+        android:label="@string/fragment_title_bookmark_edit"
+        tools:layout="@layout/fragment_bookmark_extended_create"/>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.milestonesys.mobilesdk.bookmarkssample.ui.view.AboutFragment"
+        android:label="@string/fragment_title_about"
+        tools:layout="@layout/fragment_about"/>
+</navigation>
