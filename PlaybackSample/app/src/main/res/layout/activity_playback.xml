@@ -6,38 +6,84 @@
     tools:context="com.example.milestone.playbacksample.PlaybackActivity">
 
     <LinearLayout
-        android:id="@+id/button_panel"
+        android:id="@+id/play_buttons_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/fast_backwards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_baseline_fast_rewind_24" />
 
         <ImageButton
             android:id="@+id/play_backwards"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:src="@android:drawable/ic_media_rew" />
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_baseline_play_back_arrow_24" />
 
         <ImageButton
             android:id="@+id/pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:src="@android:drawable/ic_media_pause" />
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_baseline_pause_24" />
 
         <ImageButton
             android:id="@+id/play_forwards"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:src="@android:drawable/ic_media_ff" />
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_baseline_play_arrow_24" />
+
+        <ImageButton
+            android:id="@+id/fast_forwards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_baseline_fast_forward_24" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/recording_buttons_panel"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/first_recording"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="first recording"/>
+        <Button
+            android:id="@+id/last_recording"
+            android:layout_below="@id/first_recording"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="last recording"/>
     </LinearLayout>
 
     <ImageView
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/button_panel"
+        android:layout_above="@+id/recording_buttons_panel"
+        android:layout_below="@id/play_buttons_panel"
         android:contentDescription="@string/video_view" />
+
+    <TextView
+        android:id="@+id/video_info"
+        android:background="#ffffff"
+        android:textColor="#000000"
+        android:padding="12dp"
+        android:textSize="20sp"
+        android:layout_below="@+id/play_buttons_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>

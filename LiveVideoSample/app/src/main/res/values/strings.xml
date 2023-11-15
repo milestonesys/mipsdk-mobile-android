@@ -29,5 +29,13 @@
     <string name="conn_https">HTTPS</string>
     <string name="msg_connection_lost">Connection Lost</string>
     <string name="alert_dlg_about_msg">Live Video Sample of Milestone MobileSDK.</string>
+    <string name="server_address">Server Address</string>
+    <string name="server_port">Server Port</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login_title">Login</string>
     <string name="video_view">Video view</string>
+    <string name="loading">Loading…</string>
+    <string name="camera_list_title">Camera List</string>
+    <string name="live_title">Live</string>
 </resources>

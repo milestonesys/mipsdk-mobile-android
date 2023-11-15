@@ -13,4 +13,5 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="video_view">Video view</string>
+    <string name="no_recordings">No recordings for the last %d days!</string>
 </resources>

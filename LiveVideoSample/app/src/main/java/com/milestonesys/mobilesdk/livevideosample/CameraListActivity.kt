@@ -1,9 +1,8 @@
-package com.example.milestone.playbacksample
+package com.milestonesys.mobilesdk.livevideosample
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.milestonesys.mipsdkmobile.communication.CommunicationItem
 
 /**
@@ -38,10 +38,10 @@ class CameraListActivity : AppCompatActivity() {
             b.putString(PARAM_CAMERA_NAME, cameraPressed.name)
             b.putString(PARAM_CAMERA_ID, cameraPressed.id.toString())
             val intent = Intent(
-                    this,
-                    PlaybackActivity::class.java
+                this,
+                LiveActivity::class.java
             )
-            intent.putExtras(b);
+            intent.putExtras(b)
             startActivity(intent)
         }
     }

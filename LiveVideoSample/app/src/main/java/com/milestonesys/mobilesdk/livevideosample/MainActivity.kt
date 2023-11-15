@@ -1,35 +1,32 @@
-package com.example.milestone.playbacksample
+package com.milestonesys.mobilesdk.livevideosample
 
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.milestonesys.mipsdkmobile.MIPSDKMobile
 import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
-import java.net.URL
 import com.milestonesys.mipsdkmobile.communication.CommunicationItem
-import androidx.appcompat.app.AlertDialog
-import android.view.Menu
 import java.net.MalformedURLException
-import android.view.MenuItem
-import android.view.View
+import java.net.URL
 
-/**
- * An activity that connects and gets all the available cameras from server using MIPSDKMobile
- */
 class MainActivity : AppCompatActivity() {
 
     private var serverAddressField: EditText? = null
     private var serverPortField: EditText? = null
-    private var loginButton: Button? = null
     private var usernameField: EditText? = null
     private var passwordField: EditText? = null
-    private var applicationObject: SDKSampleApplication? = null
+    private var loginButton: Button? = null
     private var loadingDialog: Dialog? = null
+
+    private var applicationObject: SDKSampleApplication? = null
 
     private var address: String = ""
     private var port: Int = 8081
@@ -60,27 +57,23 @@ class MainActivity : AppCompatActivity() {
     private fun setupViews() {
         serverAddressField = findViewById(R.id.server_address)
         serverPortField = findViewById(R.id.server_port)
-        loginButton = findViewById(R.id.login_button)
         usernameField = findViewById(R.id.username)
         passwordField = findViewById(R.id.password)
+        loginButton = findViewById(R.id.login_button)
 
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage(R.string.loading)
-        loadingDialog = builder.create()
+        loadingDialog = AlertDialog.Builder(this)
+            .setMessage(R.string.loading)
+            .create()
 
-        loginButton?.setOnClickListener(loginButtonListener)
-    }
+        loginButton?.setOnClickListener {
+            saveSettings()
+            loadingDialog?.show()
 
-    private val loginButtonListener = View.OnClickListener {
-        saveSettings()
-        loadingDialog?.show()
+            initSdk()
 
-        initSdk()
-
-        //Execute connect command on a separate Thread
-        Thread(Runnable {
-            connectToSdk()
-        }).start()
+            //Execute connect command on a separate Thread
+            Thread { connectToSdk() }.start()
+        }
     }
 
     private fun connectToSdk() {
@@ -102,9 +95,17 @@ class MainActivity : AppCompatActivity() {
         assignLoginDetails()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        closeCommunication()
+    }
+
+    private fun closeCommunication() {
+        Thread { applicationObject?.mipSdkMobile?.closeCommunication() }.start()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.main_menu, menu)
+        menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
@@ -123,8 +124,10 @@ class MainActivity : AppCompatActivity() {
         } catch (e: MalformedURLException) {
             e.printStackTrace()
         }
-        applicationObject?.mipSdkMobile = MIPSDKMobile(this, connectionUrl, communicationAlias,
-                null, null, null, null, false)
+        applicationObject?.mipSdkMobile = MIPSDKMobile(
+            this, connectionUrl, communicationAlias,
+            null, null, null, null, false
+        )
     }
 
     /**
@@ -149,23 +152,21 @@ class MainActivity : AppCompatActivity() {
      * Store connection settings
      */
     private fun saveSettings() {
-        val preferences = getPreferences(Context.MODE_PRIVATE)
-        val editor = preferences.edit()
-
-        address = serverAddressField?.text.toString()
-        val portInputText = serverPortField?.text.toString()
+        address = serverAddressField?.text?.toString() ?: ""
+        val portInputText = serverPortField?.text?.toString()
         if (!portInputText.isNullOrEmpty()) {
             port = Integer.parseInt(portInputText)
         }
         serverPortField?.setText(port.toString())
-        user = usernameField?.text.toString()
-        pass = passwordField?.text.toString()
+        user = usernameField?.text?.toString() ?: ""
+        pass = passwordField?.text?.toString() ?: ""
 
-        editor.putString(keyAddress, address)
-                .putInt(keyPort, port)
-                .putString(keyUser, user)
-                .putString(keyPass, pass)
-                .apply()
+        getPreferences(Context.MODE_PRIVATE).edit()
+            .putString(keyAddress, address)
+            .putInt(keyPort, port)
+            .putString(keyUser, user)
+            .putString(keyPass, pass)
+            .apply()
     }
 
     private fun assignLoginDetails() {
@@ -176,20 +177,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showAboutDlg() {
-        AlertDialog.Builder(this).setMessage(R.string.dlg_about_message)
-                .setTitle(R.string.app_long_name)
-                .create()
-                .show()
+        AlertDialog.Builder(this)
+            .setMessage(R.string.alert_dlg_about_msg)
+            .setTitle(R.string.app_long_name)
+            .create()
+            .show()
     }
 
     /**
      * Execute login command with username and password
      */
     private fun logIn() {
-        applicationObject?.mipSdkMobile?.logIn(usernameField?.text.toString(), passwordField?.text.toString(), {
-            //On success getAllViewsAndCameras method is executed
-            getAllViewsAndCameras()
-        }, { handleError(it) })
+        applicationObject?.mipSdkMobile?.logIn(
+            usernameField?.text.toString(),
+            passwordField?.text.toString(),
+            {
+                //On success getAllViewsAndCameras method is executed
+                getAllViewsAndCameras()
+            },
+            { handleError(it) })
     }
 
     /**
@@ -199,17 +205,16 @@ class MainActivity : AppCompatActivity() {
         applicationObject?.mipSdkMobile?.getAllViewsAndCameras({
             //Filter the result and store it
             getCamerasOnly(it.itemsList, applicationObject?.allAvailableCameras!!)
-            val intent = Intent(this, CameraListActivity::class.java)
 
             dismissLoadingDialog()
-            //Start camera list activity
-            startActivity(intent)
 
+            //Start camera list activity
+            startActivity(Intent(this, CameraListActivity::class.java))
         }, { handleError(it) })
     }
 
     private fun dismissLoadingDialog() {
-        if (loadingDialog?.isShowing!!) {
+        if (loadingDialog?.isShowing == true) {
             runOnUiThread { loadingDialog?.dismiss() }
         }
     }
@@ -237,15 +242,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        closeCommunication()
-    }
-
-    private fun closeCommunication() {
-        Thread { applicationObject?.mipSdkMobile?.closeCommunication() }.start()
-    }
-
     /**
      * Hides loading dialog and Logs the error
      */
@@ -254,4 +250,3 @@ class MainActivity : AppCompatActivity() {
         Log.e("MIPSDKMobile", communicationCommand?.errorCode.toString())
     }
 }
-
