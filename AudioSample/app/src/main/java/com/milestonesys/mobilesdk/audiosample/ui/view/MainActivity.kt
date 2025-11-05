@@ -51,11 +51,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onAboutPressed(): Boolean {
-
         findNavController(R.id.nav_host_fragment)
-            .navigate(
-                NavGraphDirections.actionGlobalAboutFragment()
-            )
+            .navigate(NavGraphDirections.actionGlobalAboutFragment())
 
         return true
     }
@@ -64,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         camerasViewModel.logOut()
 
         val navController = findNavController(R.id.nav_host_fragment)
-        val startDestination = navController.graph.startDestination
+        val startDestination = navController.graph.startDestinationId
 
         navController.navigate(
             startDestination,
@@ -73,7 +70,6 @@ class MainActivity : AppCompatActivity() {
                 popUpTo = navController.graph.id
             }
         )
-
         return true
     }
 }

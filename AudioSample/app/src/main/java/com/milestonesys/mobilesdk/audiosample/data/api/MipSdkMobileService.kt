@@ -14,7 +14,7 @@ import kotlin.collections.HashSet
 import kotlin.collections.List
 
 private const val AUDIO_CHANNEL_PATH = "XProtectMobile/Audio/"
-private const val PARAM_AUDIO_SUPPORTED = "SupportsOutgoingAudio";
+private const val PARAM_AUDIO_SUPPORTED = "SupportsOutgoingAudio"
 
 private const val ITEM_TYPE_FOLDER = "Folder"
 private const val ITEM_TYPE_VIEW = "View"

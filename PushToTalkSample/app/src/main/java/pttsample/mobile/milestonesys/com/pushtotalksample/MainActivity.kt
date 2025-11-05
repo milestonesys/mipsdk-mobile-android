@@ -12,12 +12,12 @@ import android.view.MenuItem
 import com.milestonesys.mipsdkmobile.MIPSDKMobile
 import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
 import com.milestonesys.mipsdkmobile.communication.CommunicationItem
-import kotlinx.android.synthetic.main.activity_main.*
+import pttsample.mobile.milestonesys.com.pushtotalksample.databinding.ActivityMainBinding
 import java.net.MalformedURLException
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
-
+    private lateinit var binding: ActivityMainBinding
     private var applicationObject: PushToTalkSampleApplication? = null
     private var loadingDialog: Dialog? = null
 
@@ -41,10 +41,10 @@ class MainActivity : AppCompatActivity() {
         private const val DEFAULT_PORT = 8081
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         applicationObject = application as PushToTalkSampleApplication?
 
@@ -76,9 +76,8 @@ class MainActivity : AppCompatActivity() {
         builder.setMessage(R.string.loading)
         loadingDialog = builder.create()
 
-        loginButton?.setOnClickListener {
-
-            if (inputServerAddress?.text.isNullOrEmpty() && inputServerPort?.text.isNullOrEmpty()) {
+        binding.loginButton.setOnClickListener {
+            if (binding.inputServerAddress.text.isNullOrEmpty() && binding.inputServerPort.text.isNullOrEmpty()) {
                 return@setOnClickListener
             }
 
@@ -90,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 connectionUrl = URL(
                     protocol,
-                    inputServerAddress?.text.toString(),
+                    binding.inputServerAddress.text.toString(),
                     getPortValue(),
                     ""
                 )
@@ -103,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 MIPSDKMobile(this, connectionUrl, communicationAlias, null, null, null, null, false)
 
             //Execute connect command on a separate Thread
-            Thread(Runnable {
+            Thread {
                 try {
                     applicationObject?.mipSdkMobile?.connect({
                         //On successful connect login method is executed
@@ -112,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-            }).start()
+            }.start()
         }
     }
 
@@ -141,10 +140,10 @@ class MainActivity : AppCompatActivity() {
         val preferences = getPreferences(Context.MODE_PRIVATE)
         val editor = preferences.edit()
 
-        address = inputServerAddress?.text.toString()
+        address = binding.inputServerAddress.text.toString()
         port = getPortValue()
-        username = inputUsername?.text.toString()
-        password = inputPassword?.text.toString()
+        username = binding.inputUsername.text.toString()
+        password = binding.inputPassword.text.toString()
 
         editor
             .putString(keyAddress, address)
@@ -155,16 +154,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getPortValue(): Int {
-        return if (inputServerPort?.text.toString().isNotEmpty()) {
-            Integer.parseInt(inputServerPort?.text.toString())
+        return if (binding.inputServerPort.text.toString().isNotEmpty()) {
+            Integer.parseInt(binding.inputServerPort.text.toString())
         } else DEFAULT_PORT
     }
 
     private fun assignLoginDetails() {
-        inputServerAddress?.setText(address)
-        inputServerPort?.setText(port.toString())
-        inputUsername?.setText(username)
-        inputPassword?.setText(password)
+        binding.inputServerAddress.setText(address)
+        binding.inputServerPort.setText(port.toString())
+        binding.inputUsername.setText(username)
+        binding.inputPassword.setText(password)
     }
 
     private fun showAboutDlg() {
@@ -180,17 +179,16 @@ class MainActivity : AppCompatActivity() {
      */
     private fun logIn() {
         applicationObject?.mipSdkMobile?.logIn(
-            inputUsername?.text.toString(),
-            inputPassword?.text.toString(),
+            binding.inputUsername.text.toString(),
+            binding.inputPassword.text.toString(),
             {
                 //On success getAllViewsAndCameras method is executed
-                applicationObject?.serverHost = inputServerAddress?.text.toString()
+                applicationObject?.serverHost = binding.inputServerAddress.text.toString()
                 applicationObject?.serverPort = getPortValue()
                 getAllViewsAndCameras()
             },
-            {
-                handleError(it)
-            })
+            { handleError(it) }
+        )
     }
 
     /**
@@ -249,7 +247,7 @@ class MainActivity : AppCompatActivity() {
     private fun hasSpeaker(currentCamera: CommunicationItem): Boolean {
         currentCamera.itemsList.forEach { currentItem: CommunicationItem ->
             if (currentItem.type == PushToTalkSampleApplication.COMMUNICATION_ITEM_TYPE_SPEAKER && currentItem.id != null) {
-                return true 
+                return true
             }
         }
         return false

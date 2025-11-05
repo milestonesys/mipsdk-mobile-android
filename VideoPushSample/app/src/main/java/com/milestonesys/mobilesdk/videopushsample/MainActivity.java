@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     
     private static final int REQUEST_CODE_CAMERA = 101;
     public static final int REQUEST_PERMISSIONS_DENIED = 201;
+    private static final String TAG = "MainActivity";
 
     // Connection settings (server address, user and password)
     private String address = "";
@@ -204,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                     showLoginButton(false);
                 });
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.d(TAG, e.toString());
                 showStatus(getString(R.string.connect_fail));
                 showLoginButton(false);
             }
@@ -217,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             connectionUrl = new URL(COMMUNICATION_PROTOCOL, address, port, "");
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.toString());
             showStatus(getString(R.string.bad_address));
             return;
         }

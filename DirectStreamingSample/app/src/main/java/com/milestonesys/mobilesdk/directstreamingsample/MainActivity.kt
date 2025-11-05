@@ -197,8 +197,7 @@ class MainActivity : AppCompatActivity(), IPlayerEventListener {
             if (CommunicationCommand.RESULT_ERROR != response.result) {
                 try {
                     createVideoChannel(videoID, address, port, if (secure) HTTPS else HTTP, streamType)
-                } catch (e: IOException) {
-                }
+                } catch (_: IOException) { }
             }
         }
     }

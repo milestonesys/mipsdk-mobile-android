@@ -25,12 +25,12 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
-        bookmarksViewModel.operationStatusMessage.observe(this, {
+        bookmarksViewModel.operationStatusMessage.observe(this) {
             if (it != null) {
                 Snackbar.make(findViewById(android.R.id.content), it, Snackbar.LENGTH_LONG).show()
                 bookmarksViewModel.onStatusMessageDisplayed()
             }
-        })
+        }
 
         val appBarConfiguration = AppBarConfiguration(
             setOf(R.id.loginFragment, R.id.bookmarksListFragment)

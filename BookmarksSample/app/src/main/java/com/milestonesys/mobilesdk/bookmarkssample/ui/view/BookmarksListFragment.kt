@@ -3,16 +3,18 @@ package com.milestonesys.mobilesdk.bookmarkssample.ui.view
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.transition.platform.MaterialElevationScale
 import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.milestonesys.mobilesdk.bookmarkssample.R
@@ -41,8 +43,6 @@ class BookmarksListFragment : Fragment() {
 
         exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true)
         reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false)
-
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -61,23 +61,26 @@ class BookmarksListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_list, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.menu_item_logout) {
+                    logOut()
+                    return true
+                }
+                return false
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
 
         setupUI()
         setupObserver()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_list, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_item_logout) {
-            logOut()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun setupUI() {
@@ -99,9 +102,9 @@ class BookmarksListFragment : Fragment() {
         binding.textViewFiltersSummary.text = makeFilterSummary()
         binding.buttonChangeFilters.setOnClickListener { navigateToFilters() }
         if (bookmarksViewModel.bookmarksEnabled) {
-            binding.buttonCreateBookmark.also {
-                it.visibility = View.VISIBLE
-                it.setOnClickListener { navigateToCreateNew(it) }
+            binding.buttonCreateBookmark.also { button ->
+                button.visibility = View.VISIBLE
+                button.setOnClickListener { navigateToCreateNew(it) }
             }
         }
         binding.swipeRefreshLayout.setOnRefreshListener { bookmarksViewModel.refreshBookmarks() }
@@ -119,27 +122,30 @@ class BookmarksListFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        bookmarksViewModel.bookmarks.observe(viewLifecycleOwner, {
+        bookmarksViewModel.bookmarks.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.LOADING -> {
                     binding.progressIndicator.visibility = View.VISIBLE
                     binding.groupMainContent.visibility = View.GONE
                 }
+
                 DataStatus.SUCCESS -> {
                     binding.swipeRefreshLayout.isRefreshing = false
                     binding.progressIndicator.visibility = View.GONE
                     binding.groupMainContent.visibility = View.VISIBLE
                     renderList(it.data)
                 }
+
                 DataStatus.ERROR -> {
                     binding.swipeRefreshLayout.isRefreshing = false
                     binding.progressIndicator.visibility = View.GONE
                     renderList(it.data)
                 }
+
                 else -> {
                 }
             }
-        })
+        }
     }
 
     private fun onBookmarkLoadingRequested(position: Int) {
@@ -149,12 +155,10 @@ class BookmarksListFragment : Fragment() {
     private fun onBookmarkClicked(view: View, position: Int) {
         bookmarksViewModel.selectBookmarkAt(position)
 
-        val action =
-            BookmarksListFragmentDirections
-                .actionBookmarksListFragmentToBookmarkDetailsFragment()
+        val action = BookmarksListFragmentDirections
+            .actionBookmarksListFragmentToBookmarkDetailsFragment()
 
-        val detailsTransitionName =
-            getString(R.string.details_transition_name)
+        val detailsTransitionName = getString(R.string.details_transition_name)
 
         val extras: FragmentNavigator.Extras =
             FragmentNavigatorExtras(view to detailsTransitionName)
@@ -164,12 +168,10 @@ class BookmarksListFragment : Fragment() {
 
     private fun navigateToCreateNew(clickedView: View) {
 
-        val action =
-            BookmarksListFragmentDirections
-                .actionBookmarksListFragmentToBookmarkCreateFragment()
+        val action = BookmarksListFragmentDirections
+            .actionBookmarksListFragmentToBookmarkCreateFragment()
 
-        val createTransitionName =
-            getString(R.string.create_transition_name)
+        val createTransitionName = getString(R.string.create_transition_name)
 
         val extras: FragmentNavigator.Extras =
             FragmentNavigatorExtras(clickedView to createTransitionName)
@@ -188,13 +190,13 @@ class BookmarksListFragment : Fragment() {
         bookmarksViewModel.logOut()
 
         val navController = findNavController()
-        val startDestination = navController.graph.startDestination
+        val startDestination = navController.graph.startDestinationId
 
         navController.navigate(
             startDestination,
             null,
             navOptions {
-                popUpTo = navController.graph.id
+                popUpTo(navController.graph.id)
             }
         )
     }

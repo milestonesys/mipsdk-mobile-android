@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.transition.platform.MaterialSharedAxis
@@ -74,8 +77,6 @@ open class BookmarkExtendedCreateFragment : Fragment() {
             createQuickBookmark = true
             bookmarksViewModel.requestBookmarkReference(it)
         }
-
-        setHasOptionsMenu(true)
     }
 
     open fun loadValues() {
@@ -133,6 +134,34 @@ open class BookmarkExtendedCreateFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_changes, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.menu_item_save) {
+                    if (!createQuickBookmark) {
+                        validateDateInput()
+                        validateTimeInput()
+                    }
+                    validateHeadline()
+                    if (!menuItem.isEnabled) return true
+
+                    onSaveSelected()
+                    return true
+                }
+                return false
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menuItemSave = menu.findItem(R.id.menu_item_save)
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
 
         setupUI()
         setupObserver()
@@ -291,33 +320,37 @@ open class BookmarkExtendedCreateFragment : Fragment() {
 
     protected open fun setupObserver() {
         onLoadingStarted()
-        bookmarksViewModel.cameras.observe(viewLifecycleOwner, {
+        bookmarksViewModel.cameras.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.SUCCESS -> {
                     onDataLoaded()
                 }
+
                 DataStatus.ERROR -> {
                     onLoadingComplete()
                     SnackHelper.showMessage(view, R.string.error_cameras)
                 }
+
                 else -> {
                 }
             }
-        })
+        }
         if (createQuickBookmark) {
-            bookmarksViewModel.createBookmarkData.observe(viewLifecycleOwner, {
+            bookmarksViewModel.createBookmarkData.observe(viewLifecycleOwner) {
                 when (it.status) {
                     DataStatus.SUCCESS -> {
                         onDataLoaded()
                     }
+
                     DataStatus.ERROR -> {
                         onLoadingComplete()
                         SnackHelper.showMessage(view, R.string.error_bookmark_add_disabled)
                     }
+
                     else -> {
                     }
                 }
-            })
+            }
         }
     }
 
@@ -371,35 +404,12 @@ open class BookmarkExtendedCreateFragment : Fragment() {
         return true
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_changes, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menuItemSave = menu.findItem(R.id.menu_item_save)
-    }
-
     open fun onSaveSelected() {
         if (bookmarksViewModel.isCreateEnabledForCamera(selectedCamera?.id)) {
             createDetailedBookmark()
         } else {
             SnackHelper.showMessage(view, R.string.error_bookmark_add_disabled)
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_item_save) {
-            if (!createQuickBookmark) {
-                validateDateInput()
-                validateTimeInput()
-            }
-            validateHeadline()
-            if (!item.isEnabled) return true
-
-            onSaveSelected()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun createDetailedBookmark() {

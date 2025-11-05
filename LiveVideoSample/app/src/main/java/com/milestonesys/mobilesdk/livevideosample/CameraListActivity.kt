@@ -48,14 +48,9 @@ class CameraListActivity : AppCompatActivity() {
 }
 
 class CameraAdapter(context: Context, cameras: ArrayList<CommunicationItem>?) : ArrayAdapter<CommunicationItem>(context, 0, cameras!!) {
-
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var view = convertView
-        if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.camera_list_item, parent, false);
-        }
-
-        val cameraName: TextView = view?.findViewById(R.id.camera_name) as TextView
+        val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.camera_list_item, parent, false)
+        val cameraName: TextView = view.findViewById(R.id.camera_name)
         cameraName.text = getItem(position)?.name
         return view
     }

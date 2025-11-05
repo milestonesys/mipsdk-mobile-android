@@ -3,14 +3,16 @@ package com.milestonesys.mobilesdk.audiosample.ui.view
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.milestonesys.mobilesdk.audiosample.ui.viewmodel.CamerasViewModel
 import com.milestonesys.mobilesdk.audiosample.utils.DataStatus
-
 import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.milestonesys.mobilesdk.audiosample.R
 import com.milestonesys.mobilesdk.audiosample.databinding.FragmentLoginBinding
@@ -29,8 +31,6 @@ class LoginFragment : Fragment() {
 
         exitTransition = MaterialFadeThrough()
         enterTransition = MaterialFadeThrough()
-
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -44,14 +44,19 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-
-        menu.findItem(R.id.menu_item_logout).isVisible = false
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.findItem(R.id.menu_item_logout).isVisible = false
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         setupUI()
         setupObserver()
@@ -67,27 +72,30 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        camerasViewModel.loginStatus.observe(viewLifecycleOwner, {
+        camerasViewModel.loginStatus.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.LOADING -> {
                     onLoadingStarted()
                 }
+
                 DataStatus.SUCCESS -> {
                     onLoadingComplete()
                     onLoginSuccess()
                 }
+
                 DataStatus.ERROR -> {
                     onLoadingComplete()
                     onLoginFailure(it.message)
                 }
-                else -> { }
+
+                else -> {}
             }
-        })
+        }
     }
 
     private fun onLoginSuccess() {
         findNavController().navigate(
-            LoginFragmentDirections.actionLoginFragmentToCamerasListFragment(),
+            LoginFragmentDirections.actionLoginFragmentToCamerasListFragment()
         )
     }
 

@@ -1,15 +1,9 @@
 package com.milestonesys.mobilesdk.bookmarkssample.utils
 
-import android.icu.util.LocaleData
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.chrono.IsoChronology
-import java.time.format.DateTimeFormatterBuilder
-import java.time.format.FormatStyle
-import java.util.*
+import java.util.Locale
 
 class DateHelper {
     companion object {
@@ -19,11 +13,11 @@ class DateHelper {
         }
         private val timeFormat = DateFormat.getTimeInstance(DateFormat.MEDIUM)
         private val timeFormat24 = SimpleDateFormat("HH:mm:ss", Locale.US)
-        private const val dateTimeSeparator = " "
+        private const val DATE_TIME_SEPARATOR = " "
 
         fun formatted(date: Long?): String {
             return if (date == null) ""
-            else dateFormat.format(date) + dateTimeSeparator + timeFormat.format(date)
+            else dateFormat.format(date) + DATE_TIME_SEPARATOR + timeFormat.format(date)
         }
 
         fun formattedDateOnly(date: Long?): String {

@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.google.android.material.transition.platform.*
@@ -45,8 +48,6 @@ class BookmarkCreateFragment : Fragment() {
         reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false)
 
         sharedElementEnterTransition = MaterialContainerTransform()
-
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -59,6 +60,29 @@ class BookmarkCreateFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_changes, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.menu_item_save) {
+                    validateHeadline()
+                    if (!menuItem.isEnabled) return true
+
+                    onSaveSelected()
+                    return true
+                }
+                return false
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menuItemSave = menu.findItem(R.id.menu_item_save)
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         setupUI()
         setupObserver()
@@ -96,25 +120,28 @@ class BookmarkCreateFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        bookmarksViewModel.cameras.observe(viewLifecycleOwner, {
+        bookmarksViewModel.cameras.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.LOADING -> {
                     onLoadingStarted()
                 }
+
                 DataStatus.SUCCESS -> {
                     onLoadingComplete()
                     cameraOptions = arrayListOf()
                     it.data?.let { data -> cameraOptions.addAll(data) }
                     setupOptions()
                 }
+
                 DataStatus.ERROR -> {
                     onLoadingComplete()
                     SnackHelper.showMessage(view, R.string.error_cameras)
                 }
+
                 else -> {
                 }
             }
-        })
+        }
     }
 
     private fun setupOptions() {
@@ -145,24 +172,6 @@ class BookmarkCreateFragment : Fragment() {
         )
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_changes, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menuItemSave = menu.findItem(R.id.menu_item_save)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_item_save) {
-            validateHeadline()
-            if (!item.isEnabled) return true
-
-            onSaveSelected()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
     private fun validateHeadline() {
         with(binding.bookmarkHeadline) {
@@ -220,21 +229,20 @@ class BookmarkCreateFragment : Fragment() {
 
     private fun createDetailedBookmarkLive() {
         val cameraId = selectedCamera!!.id.toString()
+        val action = BookmarkCreateFragmentDirections
+            .actionBookmarkCreateFragmentToBookmarkExtendedCreateFragment()
+        action.cameraId = cameraId
 
-        findNavController().navigate(BookmarkCreateFragmentDirections
-            .actionBookmarkCreateFragmentToBookmarkExtendedCreateFragment(cameraId),
-            navOptions {
-                popUpTo = R.id.bookmarksListFragment
-            }
-        )
+        findNavController().navigate(action, navOptions {
+            popUpTo(R.id.bookmarksListFragment)
+        })
     }
 
     private fun createDetailedBookmarkPlayback() {
-
         findNavController().navigate(BookmarkCreateFragmentDirections
             .actionBookmarkCreateFragmentToBookmarkExtendedCreateFragment(),
             navOptions {
-                popUpTo = R.id.bookmarksListFragment
+                popUpTo(R.id.bookmarksListFragment)
             }
         )
     }

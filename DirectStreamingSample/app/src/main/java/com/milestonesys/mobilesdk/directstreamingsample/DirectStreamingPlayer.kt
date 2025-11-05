@@ -4,19 +4,17 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.Log
-import androidx.annotation.NonNull
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player.EventListener
 import com.google.android.exoplayer2.Player.STATE_READY
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.PlayerView
 import com.milestonesys.mipsdkmobile.callbacks.VideoReceiver
 import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
@@ -30,8 +28,8 @@ import java.util.concurrent.locks.ReentrantLock
 class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fallbackListener: IPlayerEventListener?) : EventListener, VideoReceiver {
 
     companion object {
-        private const val mediaSourceBufferSize = 2
-        private const val fallBackTaskDelay: Long = 4000
+        private const val MEDIA_SOURCE_BUFFER_SIZE = 2
+        private const val FALLBACK_TASK_DELAY: Long = 4000
         private const val TAG_DS = "DSPlayer"
 
         interface IPlayerEventListener {
@@ -48,9 +46,9 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
 
     @Volatile
     private var isScheduledTask = false
-    private var player: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context.get(), DefaultTrackSelector())
+    private var player: SimpleExoPlayer = SimpleExoPlayer.Builder(ctx).build()
     private var concatenatingMediaSource: ConcatenatingMediaSource = ConcatenatingMediaSource()
-    private val mediaSourceEventsHandler: Handler = Handler(CustomPlayerHandler(this, player, concatenatingMediaSource))
+    private val mediaSourceEventsHandler: Handler = Handler(Looper.getMainLooper(), CustomPlayerHandler(this, player, concatenatingMediaSource))
     private var lastAddedFragmentId = 0
     private var lastPlayedFragmentId = 0
     private val addNewSourceLocker = ReentrantLock()
@@ -66,7 +64,7 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
         player.playWhenReady = true
 
         Log.d(logTag, "Creating new video player instance: $player")
-        scheduleTimer(fallBackTaskDelay)
+        scheduleTimer()
     }
 
     fun getPlayerView(): PlayerView {
@@ -80,20 +78,20 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
             }
         } else {
             if (!isScheduledTask) {
-                scheduleTimer(fallBackTaskDelay)
+                scheduleTimer()
             }
         }
     }
 
     //Called when segment is fully loaded or player.seek is called
     override fun onPositionDiscontinuity(reason: Int) {
-        if (lastPlayedFragmentId > mediaSourceBufferSize) {
+        if (lastPlayedFragmentId > MEDIA_SOURCE_BUFFER_SIZE) {
             Thread {
                 try {
                     addNewSourceLocker.lock()
                     concatenatingMediaSource.removeMediaSource(0)
                 } catch (e: IllegalArgumentException) {
-                    Log.d(TAG_DS, "Еxception while trying to remove media source")
+                    Log.d(TAG_DS, "Exception while trying to remove media source")
                 } finally {
                     addNewSourceLocker.unlock()
                 }
@@ -106,7 +104,7 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
             if (lastPlayedFragmentId == lastAddedFragmentId && lastPlayedFragmentId != 0) {
                 player.playWhenReady = false
                 if (!isScheduledTask) {
-                    scheduleTimer(fallBackTaskDelay)
+                    scheduleTimer()
                 }
             } else {
                 unScheduleTimer()
@@ -118,7 +116,7 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
         lastPlayedFragmentId++
     }
 
-    override fun onPlayerError(error: ExoPlaybackException?) {
+    override fun onPlayerError(error: PlaybackException) {
         restartPlayer()
     }
 
@@ -164,7 +162,7 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
         }
 
         if (!isScheduledTask) {
-            scheduleTimer(fallBackTaskDelay)
+            scheduleTimer()
         }
 
         addNewFrame(vCmd)
@@ -172,8 +170,8 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
 
     private fun addNewFrame(vCmd: VideoCommand?) {
         vCmd?.let { videoCommand ->
-            videoCommand.payloadType?.let { paylaodType ->
-                if (paylaodType == CommunicationCommand.PARAM_PAYLOAD_TYPE_DIRECT_STREAMING_H264 || paylaodType == CommunicationCommand.PARAM_PAYLOAD_TYPE_DIRECT_STREAMING_H265) {
+            videoCommand.payloadType?.let { payloadType ->
+                if (payloadType == CommunicationCommand.PARAM_PAYLOAD_TYPE_DIRECT_STREAMING_H264 || payloadType == CommunicationCommand.PARAM_PAYLOAD_TYPE_DIRECT_STREAMING_H265) {
                     try {
                         addVideoToPlaylist(videoCommand.payload)
                     } catch (e: java.lang.Exception) {
@@ -196,8 +194,8 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
                     lastAddedFragmentId++
 
                     //If the current video fragment is with more than 2 (fragmentsBufferSize) fragments difference than the latest added, then clear the media source and keep only the latest 2 fragments
-                    if (lastAddedFragmentId - lastPlayedFragmentId > mediaSourceBufferSize) {
-                        concatenatingMediaSource.removeMediaSourceRange(0, concatenatingMediaSource.size - mediaSourceBufferSize)
+                    if (lastAddedFragmentId - lastPlayedFragmentId > MEDIA_SOURCE_BUFFER_SIZE) {
+                        concatenatingMediaSource.removeMediaSourceRange(0, concatenatingMediaSource.size - MEDIA_SOURCE_BUFFER_SIZE)
                         lastPlayedFragmentId = 0
                         lastAddedFragmentId = 0
                         mediaSourceEventsHandler.sendEmptyMessage(CustomPlayerHandler.MSG_PREPARE_PLAYER)
@@ -222,8 +220,8 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
     /*
         FALLBACK TIMER
     */
-    private fun scheduleTimer(delay: Long) {
-        mediaSourceEventsHandler.sendEmptyMessageDelayed(MSG_FALLBACK_TIMER, delay)
+    private fun scheduleTimer() {
+        mediaSourceEventsHandler.sendEmptyMessageDelayed(MSG_FALLBACK_TIMER, FALLBACK_TASK_DELAY)
         isScheduledTask = true
     }
 
@@ -238,7 +236,11 @@ class DirectStreamingPlayer(private val playerView: PlayerView, ctx: Context, fa
         return player.playWhenReady
     }
 
-    private class CustomPlayerHandler(@NonNull val callerContext: DirectStreamingPlayer, @NonNull val player: SimpleExoPlayer, @NonNull val concatenatingMediaSource: ConcatenatingMediaSource) : Handler.Callback {
+    private class CustomPlayerHandler(
+        val callerContext: DirectStreamingPlayer,
+        val player: SimpleExoPlayer,
+        val concatenatingMediaSource: ConcatenatingMediaSource
+    ) : Handler.Callback {
         companion object {
             const val MSG_PREPARE_PLAYER = 0
             const val MSG_FORCE_PLAYER = 1

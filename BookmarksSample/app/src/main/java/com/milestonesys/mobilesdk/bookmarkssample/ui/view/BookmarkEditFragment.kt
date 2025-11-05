@@ -25,18 +25,20 @@ class BookmarkEditFragment : BookmarkExtendedCreateFragment() {
     override fun setupObserver() {
         super.setupObserver()
 
-        bookmarksViewModel.selectedBookmark.observe(viewLifecycleOwner, {
+        bookmarksViewModel.selectedBookmark.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.SUCCESS -> {
                     onDataLoaded()
                 }
+
                 DataStatus.ERROR -> {
                     onLoadingComplete()
                     findNavController().popBackStack()
                 }
-                else -> { }
+
+                else -> {}
             }
-        })
+        }
     }
 
     override fun onDataLoaded() {

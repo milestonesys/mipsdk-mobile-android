@@ -1,11 +1,14 @@
 package pttsample.mobile.milestonesys.com.pushtotalksample
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.AudioFormat
 import com.milestonesys.mipsdkmobile.communication.PushToTalkCommand
 import com.milestonesys.mipsdkmobile.communication.CommunicationCommand.SERVERERROR_INTERNAL_ERROR
 import android.media.MediaRecorder
 import android.media.AudioRecord
+import androidx.core.app.ActivityCompat
 import com.milestonesys.mipsdkmobile.communication.VideoCommand
 import com.milestonesys.mipsdkmobile.communication.HTTPConnection
 import com.milestonesys.mipsdkmobile.communication.ConnectionLayer
@@ -114,7 +117,9 @@ class PushToTalkEngine {
                 getXProtectAlias(streamId)
             )
 
-            (communication as HTTPConnection<*>).setMaxTimeForReadingInputStream(RESPONSE_READ_TIMEOUT)
+            (communication as HTTPConnection<*>).setMaxTimeForReadingInputStream(
+                RESPONSE_READ_TIMEOUT
+            )
             (communication as HTTPConnection<*>).setMaxWaitingTimeBeforeTimeout(RESPONSE_TIMEOUT)
 
         } catch (e: IOException) {
@@ -124,23 +129,30 @@ class PushToTalkEngine {
         vCmd = VideoCommand(streamId)
     }
 
-    private fun getXProtectAlias(streamId: String): String{
+    private fun getXProtectAlias(streamId: String): String {
         return "$aliasMobile$streamId/"
     }
 
     /**
      * Init of AudioRecorder and start capturing audio waves from the device's microphone
      */
-    fun startRecording() {
+    fun startRecording(context: Context) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
         recorder = AudioRecord(
             MediaRecorder.AudioSource.MIC,
             RECORDER_SAMPLE_RATE, RECORDER_CHANNELS,
             RECORDER_AUDIO_ENCODING, bufferElementsToRec * bytesPerElement
         )
 
-        recorder!!.startRecording()
+        recorder?.startRecording()
         isRecording = true
-        Thread(Runnable { catchAudioData() }).start()
+        Thread { catchAudioData() }.start()
     }
 
     /**
@@ -260,7 +272,6 @@ class PushToTalkEngine {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
         }
         return result
     }
@@ -277,11 +288,11 @@ class PushToTalkEngine {
                 recorder!!.stop()
                 recorder!!.release()
                 recorder = null
-                Thread(Runnable {
+                Thread {
                     if (streamID != null) {
                         vApp.mipSdkMobile?.stopAudioStream(streamID, null, null)
                     }
-                }).start()
+                }.start()
             }
         } catch (e: IOException) {
             e.printStackTrace()
