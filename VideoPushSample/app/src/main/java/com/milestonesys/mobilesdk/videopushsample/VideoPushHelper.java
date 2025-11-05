@@ -3,6 +3,7 @@ package com.milestonesys.mobilesdk.videopushsample;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.util.Log;
 
 import androidx.camera.core.ImageProxy;
 
@@ -27,7 +28,7 @@ class VideoPushHelper {
     private static final String FPS = "8.0";
     private static final String QUALITY = "73";
     private static final int IMAGE_QUALITY = 89;
-
+    private static final String TAG = "VideoPushHelper";
     private int frameCount = 0;
     private final byte[] headerBuffer = new byte[36];
 
@@ -91,7 +92,7 @@ class VideoPushHelper {
                 bOut.write(vCmd.headerLocation.getData());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.toString());
             return;
         }
 
@@ -102,7 +103,7 @@ class VideoPushHelper {
             try {
                 bOut.write(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d(TAG, e.toString());
                 return;
             }
         } else if (image.getFormat() == ImageFormat.YUV_420_888) {  // This is the format used by ImageAnalyzer
@@ -133,7 +134,7 @@ class VideoPushHelper {
                 if (exMsg.contains(ERROR_CONNECTION_REFUSED) || exMsg.contains(ERROR_CONNECTION_RESET)) {
                     callback.call();
                 } else if (!exMsg.contains(ERROR_BAD_REQUEST)) {
-                    e.printStackTrace();
+                    Log.d(TAG, e.toString());
                 }
             }
         }

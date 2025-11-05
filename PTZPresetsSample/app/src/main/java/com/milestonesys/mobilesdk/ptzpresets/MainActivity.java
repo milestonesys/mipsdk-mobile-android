@@ -1,6 +1,5 @@
 package com.milestonesys.mobilesdk.ptzpresets;
 
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
         try {
             connectionUrl = new URL(PROTOCOL, address, port, "");
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            Log.d(LOG_TAG, "Caught exception: " + e);
             showStatus(getString(R.string.bad_address));
             return;
         }
@@ -153,29 +152,20 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
         // Start the connection sequence on a separate thread so not to block the UI
         showStatus(getString(R.string.connecting));
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    mipSdkMobile.connect(new SuccessCallback() {
-                        @Override
-                        public void onSuccess(CommunicationCommand response) {
-                            // Connected. Proceed with login.
-                            connected = true;
-                            logIn();
-                        }
-                    }, new ErrorCallback() {
-                        @Override
-                        public void onErrorOccurred(CommunicationCommand response) {
-                            Log.d(LOG_TAG, "Error connecting: " + (response == null ? "?" : response.getError()));
-                            connected = false;
-                            showStatus(getString(R.string.connect_fail));
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
+        new Thread(() -> {
+            try {
+                mipSdkMobile.connect(response -> {
+                    // Connected. Proceed with login.
+                    connected = true;
+                    logIn();
+                }, response -> {
+                    Log.d(LOG_TAG, "Error connecting: " + (response == null ? "?" : response.getError()));
+                    connected = false;
                     showStatus(getString(R.string.connect_fail));
-                }
+                });
+            } catch (Exception e) {
+                Log.e(LOG_TAG, e.toString());
+                showStatus(getString(R.string.connect_fail));
             }
         }).start();
     }
@@ -186,43 +176,31 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
     private void logIn() {
         showStatus(getString(R.string.logging_in));
 
-        mipSdkMobile.logIn(user, password, new SuccessCallback() {
-            @Override
-            public void onSuccess(CommunicationCommand response) {
-                showStatus(getString(R.string.loading_cameras));
+        mipSdkMobile.logIn(user, password, loginSuccessResponse -> {
+            showStatus(getString(R.string.loading_cameras));
 
-                // Get All Cameras view (the view that holds all the cameras in the system)
-                mipSdkMobile.getViews(ALL_CAMERAS_VIEW_ID,
-                        new SuccessCallback() {
-                            @Override
-                            public void onSuccess(CommunicationCommand response) {
-                                Vector<CommunicationCommand.SubItem> cameras = response.getSubItems();
-                                Log.d(LOG_TAG, "Received All Cameras view with " + cameras.size() + " cameras");
-                                // Select a PTZ camera to show
-                                CommunicationCommand.SubItem PTZCamera = getPtzCamera(cameras);
-                                if (PTZCamera == null) {
-                                    showStatus(getString(R.string.ptz_camera_not_found));
-                                    return;
-                                }
-                                showStatus(getString(R.string.loading_camera) + " " + PTZCamera.getName());
-                                requestVideo(PTZCamera.getId());
-                            }
-                        },
-                        new ErrorCallback() {
-                            @Override
-                            public void onErrorOccurred(CommunicationCommand response) {
-                                Log.d(LOG_TAG, "Error getting cameras: " + (response == null ? "?" : response.getError()));
-                                showStatus(getString(R.string.error_getting_cameras));
-                            }
+            // Get All Cameras view (the view that holds all the cameras in the system)
+            mipSdkMobile.getViews(ALL_CAMERAS_VIEW_ID,
+                    getViewsSuccessResponse -> {
+                        Vector<CommunicationCommand.SubItem> cameras = getViewsSuccessResponse.getSubItems();
+                        Log.d(LOG_TAG, "Received All Cameras view with " + cameras.size() + " cameras");
+                        // Select a PTZ camera to show
+                        CommunicationCommand.SubItem PTZCamera = getPtzCamera(cameras);
+                        if (PTZCamera == null) {
+                            showStatus(getString(R.string.ptz_camera_not_found));
+                            return;
                         }
-                );
-            }
-        }, new ErrorCallback() {
-            @Override
-            public void onErrorOccurred(CommunicationCommand response) {
-                Log.d(LOG_TAG, "Error Login: " + (response == null ? "?" : response.getError()));
-                showStatus(getString(R.string.login_fail));
-            }
+                        showStatus(getString(R.string.loading_camera) + " " + PTZCamera.getName());
+                        requestVideo(PTZCamera.getId());
+                    },
+                    getViewsErrorResponse -> {
+                        Log.d(LOG_TAG, "Error getting cameras: " + (getViewsErrorResponse == null ? "?" : getViewsErrorResponse.getError()));
+                        showStatus(getString(R.string.error_getting_cameras));
+                    }
+            );
+        }, loginErrorResponse -> {
+            Log.d(LOG_TAG, "Error Login: " + (loginErrorResponse == null ? "?" : loginErrorResponse.getError()));
+            showStatus(getString(R.string.login_fail));
         });
     }
 
@@ -231,14 +209,11 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
         final boolean[] cameraIsFound = new boolean[1];
 
         for (final CommunicationCommand.SubItem camera : cameras) {
-            mipSdkMobile.getCameraCapabilities(camera.getId(), new SuccessCallback() {
-                @Override
-                public void onSuccess(CommunicationCommand communicationCommand) {
-                    boolean isPtz = communicationCommand.getOutputParam().get(OUTPUT_PARAM_PTZ).equals(OUTPUT_PARAM_YES);
-                    if (isPtz) {
-                        result[0] = camera;
-                        cameraIsFound[0] = true;
-                    }
+            mipSdkMobile.getCameraCapabilities(camera.getId(), communicationCommand -> {
+                boolean isPtz = OUTPUT_PARAM_YES.equals(communicationCommand.getOutputParam().get(OUTPUT_PARAM_PTZ));
+                if (isPtz) {
+                    result[0] = camera;
+                    cameraIsFound[0] = true;
                 }
             }, null);
             if (cameraIsFound[0]) {
@@ -294,21 +269,15 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
             final Bitmap bmp = BitmapFactory.decodeStream(inputStream);
             try {
                 if (bmp != null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            videoView.setImageBitmap(bmp);
-                        }
-                    });
+                    runOnUiThread(() -> videoView.setImageBitmap(bmp));
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                Log.d(LOG_TAG, "Error decoding image");
+                Log.d(LOG_TAG, "Error decoding image: " + e);
             } finally {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.d(LOG_TAG, "Caught exception: " + e);
                 }
             }
         }
@@ -318,14 +287,11 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
      * Disconnect from the server.
      */
     private void disconnect(final MIPSDKMobile sdk) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (sdk != null) {
-                    sdk.closeCommunication();
-                    connected = false;
-                    showStatus(getString(R.string.status_disconnected));
-                }
+        new Thread(() -> {
+            if (sdk != null) {
+                sdk.closeCommunication();
+                connected = false;
+                showStatus(getString(R.string.status_disconnected));
             }
         }).start();
     }
@@ -334,63 +300,42 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
 
     private void showPTZPresets() {
         if (videoId == null) {
-            showToastMessage(getString(R.string.preset_failed_to_get), Toast.LENGTH_SHORT);
+            showToastMessage(getString(R.string.preset_failed_to_get));
             return;
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HashMap<String, String> props = new HashMap<>();
-                props.put(CommunicationCommand.PARAM_VIDEO_ID, videoId);
-                // Query the server for the PTZ presets of the given live video id
-                mipSdkMobile.sendCommand(CMD_PTZ_PRESETS, props,
-                        new SuccessCallback() {
-                            @Override
-                            public void onSuccess(CommunicationCommand response) {
-                                Collection<String> presets = response.getOutputParam().values();
-                                String[] arrPresets = new String[presets.size()];
-                                arrPresets = presets.toArray(arrPresets);
+        new Thread(() -> {
+            HashMap<String, String> props = new HashMap<>();
+            props.put(CommunicationCommand.PARAM_VIDEO_ID, videoId);
+            // Query the server for the PTZ presets of the given live video id
+            mipSdkMobile.sendCommand(
+                    CMD_PTZ_PRESETS,
+                    props,
+                    successResponse -> {
+                        Collection<String> presets = successResponse.getOutputParam().values();
+                        String[] arrPresets = new String[presets.size()];
+                        arrPresets = presets.toArray(arrPresets);
 
-                                // ask the user to select preset
-                                onPtzPresetSelect(arrPresets);
-                            }
-                        },
-                        new ErrorCallback() {
-                            @Override
-                            public void onErrorOccurred(CommunicationCommand response) {
-                                showToastMessage(getString(R.string.preset_failed_to_get), Toast.LENGTH_SHORT);
-                            }
-                        });
-            }
+                        // ask the user to select preset
+                        onPtzPresetSelect(arrPresets);
+                    },
+                    errorResponse -> showToastMessage(getString(R.string.preset_failed_to_get)));
         }).start();
     }
 
-    private void showToastMessage(final String toastMessage, final int lengthShort) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this, toastMessage,
-                        lengthShort).show();
-            }
-        });
+    private void showToastMessage(final String toastMessage) {
+        runOnUiThread(() -> Toast.makeText(
+                MainActivity.this,
+                toastMessage,
+                Toast.LENGTH_SHORT
+        ).show());
     }
 
     // Display a list of the ptz presets
     private void onPtzPresetSelect(final String[] arrPresets) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(R.string.menu_ptz_presets)
-                        .setItems(arrPresets, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface dialog, final int which) {
-                                setPtzPreset(arrPresets[which]);
-                            }
-                        })
-                        .show();
-            }
-        });
+        runOnUiThread(() -> new AlertDialog.Builder(MainActivity.this)
+                .setTitle(R.string.menu_ptz_presets)
+                .setItems(arrPresets, (dialog, which) -> setPtzPreset(arrPresets[which]))
+                .show());
     }
 
     // Activate the selected ptz preset
@@ -402,19 +347,11 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
                 props.put(CommunicationCommand.PARAM_PTZ_PRESET, preset);
 
                 mipSdkMobile.sendCommand(CMD_STREAM_CHANGE, props,
-                        new SuccessCallback() {
-                            @Override
-                            public void onSuccess(CommunicationCommand communicationCommand) {
-                                // preset activated
-                                showToastMessage(getString(R.string.preset_success_activated) + " " + preset, Toast.LENGTH_SHORT);
-                            }
+                        communicationCommand -> {
+                            // preset activated
+                            showToastMessage(getString(R.string.preset_success_activated) + " " + preset);
                         },
-                        new ErrorCallback() {
-                            @Override
-                            public void onErrorOccurred(CommunicationCommand communicationCommand) {
-                                showToastMessage(getString(R.string.preset_failed_to_activate) + " " + preset, Toast.LENGTH_SHORT);
-                            }
-                        }
+                        communicationCommand -> showToastMessage(getString(R.string.preset_failed_to_activate) + " " + preset)
                 );
             }
         }.start();
@@ -442,20 +379,17 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
         inputPassword.setText(password);
 
         builder.setView(view);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        address = inputUrl.getText().toString();
-                        String portInputText = inputPort.getText().toString();
-                        if (!portInputText.isEmpty()) {
-                            port = Integer.parseInt(portInputText);
-                        }
-                        user = inputUsername.getText().toString();
-                        password = inputPassword.getText().toString();
-                        saveSettings();
-                        disconnect(mipSdkMobile);
-                        connectToSdk();
+        builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+                    address = inputUrl.getText().toString();
+                    String portInputText = inputPort.getText().toString();
+                    if (!portInputText.isEmpty()) {
+                        port = Integer.parseInt(portInputText);
                     }
+                    user = inputUsername.getText().toString();
+                    password = inputPassword.getText().toString();
+                    saveSettings();
+                    disconnect(mipSdkMobile);
+                    connectToSdk();
                 }
         );
         builder.setNegativeButton(R.string.cancel, null);
@@ -481,12 +415,9 @@ public class MainActivity extends AppCompatActivity implements VideoReceiver {
      * @param msg Message text to display
      */
     private void showStatus(final String msg) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ((TextView) findViewById(R.id.status_txt)).setText(msg);
-                videoView.setImageResource(android.R.color.transparent);
-            }
+        runOnUiThread(() -> {
+            ((TextView) findViewById(R.id.status_txt)).setText(msg);
+            videoView.setImageResource(android.R.color.transparent);
         });
     }
 

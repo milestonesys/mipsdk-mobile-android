@@ -3,9 +3,12 @@ package com.milestonesys.mobilesdk.bookmarkssample.ui.view
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.platform.MaterialFadeThrough
@@ -27,8 +30,6 @@ class LoginFragment : Fragment() {
 
         exitTransition = MaterialFadeThrough()
         enterTransition = MaterialFadeThrough()
-
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -44,22 +45,22 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_login, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_item_about) {
-            findNavController().navigate(
-                LoginFragmentDirections.actionLoginFragmentToAboutFragment()
-            )
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_login, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                findNavController().navigate(
+                    LoginFragmentDirections.actionLoginFragmentToAboutFragment()
+                )
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         setupUI()
         setupObserver()
@@ -75,23 +76,26 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        bookmarksViewModel.loginStatus.observe(viewLifecycleOwner, {
+        bookmarksViewModel.loginStatus.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.LOADING -> {
                     onLoadingStarted()
                 }
+
                 DataStatus.SUCCESS -> {
                     onLoadingComplete()
                     onLoginSuccess()
                 }
+
                 DataStatus.ERROR -> {
                     onLoadingComplete()
                     onLoginFailure(it.message)
                 }
+
                 else -> {
                 }
             }
-        })
+        }
     }
 
     private fun onLoginSuccess() {

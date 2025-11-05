@@ -3,8 +3,11 @@ package com.milestonesys.mobilesdk.bookmarkssample.ui.view
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -41,8 +44,6 @@ class BookmarkDetailsFragment : Fragment() {
         reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false)
 
         sharedElementEnterTransition = MaterialContainerTransform()
-
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -69,8 +70,65 @@ class BookmarkDetailsFragment : Fragment() {
         binding.videoView.notifyOnVideoPaused()
     }
 
+    private fun navigateToEditBookmark() {
+        findNavController().navigate(
+            BookmarkDetailsFragmentDirections
+                .actionBookmarkDetailsFragmentToBookmarkEditFragment()
+        )
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_details, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (!this@BookmarkDetailsFragment::currentBookmark.isInitialized) return false
+
+                val camera =
+                    bookmarksViewModel.cameras.value?.data?.find { it.id == currentBookmark.cameraId }
+                        ?: return false
+
+                if (menuItem.itemId == R.id.menu_item_edit) {
+                    if (camera.editBookmarksEnabled) {
+                        navigateToEditBookmark()
+                    } else {
+                        Snackbar.make(
+                            requireView(),
+                            getString(R.string.error_bookmark_update_disabled),
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                    return true
+                }
+                if (menuItem.itemId == R.id.menu_item_delete) {
+                    if (camera.deleteBookmarksEnabled) {
+                        showDeleteDialog()
+                    } else {
+                        Snackbar.make(
+                            requireView(),
+                            getString(R.string.error_bookmark_delete_disabled),
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                    return true
+                }
+                return false
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menuItemEdit = menu.findItem(R.id.menu_item_edit)
+                menuItemEdit?.isEnabled = bookmarksViewModel.selectedBookmark.value?.data != null
+
+                menuItemDelete = menu.findItem(R.id.menu_item_delete)
+                menuItemDelete?.isEnabled = bookmarksViewModel.selectedBookmark.value?.data != null
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         setupUI()
         setupObserver()
@@ -103,60 +161,6 @@ class BookmarkDetailsFragment : Fragment() {
         requestVideoStream()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_details, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-
-        menuItemEdit = menu.findItem(R.id.menu_item_edit)
-        menuItemEdit?.isEnabled = bookmarksViewModel.selectedBookmark.value?.data != null
-
-        menuItemDelete = menu.findItem(R.id.menu_item_delete)
-        menuItemDelete?.isEnabled = bookmarksViewModel.selectedBookmark.value?.data != null
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (!this::currentBookmark.isInitialized) return super.onOptionsItemSelected(item)
-
-        val camera =
-            bookmarksViewModel.cameras.value?.data?.find { it.id == currentBookmark.cameraId }
-                ?: return super.onOptionsItemSelected(item)
-
-        if (item.itemId == R.id.menu_item_edit) {
-            if (camera.editBookmarksEnabled) {
-                navigateToEditBookmark()
-            } else {
-                Snackbar.make(
-                    requireView(),
-                    getString(R.string.error_bookmark_update_disabled),
-                    Snackbar.LENGTH_LONG
-                ).show()
-            }
-            return true
-        }
-        if (item.itemId == R.id.menu_item_delete) {
-            if (camera.deleteBookmarksEnabled) {
-                showDeleteDialog()
-            } else {
-                Snackbar.make(
-                    requireView(),
-                    getString(R.string.error_bookmark_delete_disabled),
-                    Snackbar.LENGTH_LONG
-                ).show()
-            }
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun navigateToEditBookmark() {
-        findNavController().navigate(
-            BookmarkDetailsFragmentDirections
-                .actionBookmarkDetailsFragmentToBookmarkEditFragment()
-        )
-    }
 
     private fun showDeleteDialog() {
         MaterialAlertDialogBuilder(requireContext())
@@ -219,17 +223,17 @@ class BookmarkDetailsFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        bookmarksViewModel.currentFrame.observe(viewLifecycleOwner, {
+        bookmarksViewModel.currentFrame.observe(viewLifecycleOwner) {
             binding.videoView.frame = it
-        })
-        bookmarksViewModel.videoEnded.observe(viewLifecycleOwner, {
+        }
+        bookmarksViewModel.videoEnded.observe(viewLifecycleOwner) {
             if (it == true) binding.videoView.notifyOnVideoEnded()
-        })
-        bookmarksViewModel.videoError.observe(viewLifecycleOwner, {
+        }
+        bookmarksViewModel.videoError.observe(viewLifecycleOwner) {
             if (it == true) binding.videoView.notifyOnVideoError()
-        })
+        }
 
-        bookmarksViewModel.selectedBookmark.observe(viewLifecycleOwner, {
+        bookmarksViewModel.selectedBookmark.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.LOADING -> {
                     changeButtonsEnabled(false)
@@ -237,6 +241,7 @@ class BookmarkDetailsFragment : Fragment() {
                     binding.groupMainContent.visibility = View.GONE
                     binding.groupEmpty.visibility = View.GONE
                 }
+
                 DataStatus.SUCCESS -> {
                     changeButtonsEnabled(true)
                     binding.groupLoading.visibility = View.GONE
@@ -244,16 +249,18 @@ class BookmarkDetailsFragment : Fragment() {
                     binding.groupEmpty.visibility = View.GONE
                     onDataLoaded(it.data)
                 }
+
                 DataStatus.ERROR -> {
                     changeButtonsEnabled(false)
                     binding.groupLoading.visibility = View.GONE
                     binding.groupMainContent.visibility = View.GONE
                     binding.groupEmpty.visibility = View.VISIBLE
                 }
+
                 else -> {
                 }
             }
-        })
+        }
     }
 
     private fun onDataLoaded(bookmarkItem: BookmarkItem?) {

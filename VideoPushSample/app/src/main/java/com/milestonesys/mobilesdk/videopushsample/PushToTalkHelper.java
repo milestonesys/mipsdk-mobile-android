@@ -1,9 +1,11 @@
 package com.milestonesys.mobilesdk.videopushsample;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.util.Log;
 
 import com.milestonesys.mipsdkmobile.communication.HTTPConnection;
 import com.milestonesys.mipsdkmobile.communication.PushToTalkCommand;
@@ -17,6 +19,8 @@ import java.net.HttpURLConnection;
 import static com.milestonesys.mipsdkmobile.communication.CommunicationCommand.SERVERERROR_INTERNAL_ERROR;
 import static com.milestonesys.mobilesdk.videopushsample.VideoPushApplication.ALIAS_AUDIO;
 
+import androidx.core.app.ActivityCompat;
+
 class PushToTalkHelper {
     static final String RECORDER_SAMPLE_RATE = "8000";
     static final String BITS_PER_SAMPLE = "16";
@@ -25,7 +29,7 @@ class PushToTalkHelper {
     private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     private static final int BUFFER_ELEMENTS_TO_REC = 2048;
     private static final int BYTES_PER_ELEMENT = 2;
-
+    private static final String TAG = "PushToTalkHelper";
     private static final int RESPONSE_READ_TIMEOUT = 3000; //in milliseconds
     private static final int RESPONSE_TIMEOUT = 4000; //in milliseconds
 
@@ -55,7 +59,7 @@ class PushToTalkHelper {
             communication.setMaxTimeForReadingInputStream(RESPONSE_READ_TIMEOUT);
             communication.setMaxWaitingTimeBeforeTimeout(RESPONSE_TIMEOUT);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.toString());
         }
         vCmd = new VideoCommand(streamId);
     }
@@ -64,7 +68,10 @@ class PushToTalkHelper {
         return isRecording;
     }
 
-    void startRecording() {
+    void startRecording(Context context) {
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 Integer.parseInt(RECORDER_SAMPLE_RATE), RECORDER_CHANNELS,
                 RECORDER_AUDIO_ENCODING, BUFFER_ELEMENTS_TO_REC * BYTES_PER_ELEMENT);
@@ -145,12 +152,12 @@ class PushToTalkHelper {
             if (errorCallback != null) {
                 errorCallback.onErrorOccurred(SERVERERROR_INTERNAL_ERROR);
             }
-            e.printStackTrace();
+            Log.d(TAG, e.toString());
         } finally {
             try {
                 bOut.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d(TAG, e.toString());
             }
         }
     }
@@ -182,7 +189,7 @@ class PushToTalkHelper {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d(TAG, e.toString());
             }
         }
         return result;
@@ -209,7 +216,7 @@ class PushToTalkHelper {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.toString());
         }
     }
 

@@ -9,21 +9,16 @@ import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
 import com.milestonesys.mipsdkmobile.communication.CommunicationItem
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
-import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import kotlinx.android.synthetic.main.activity_push_to_talk.*
 import pttsample.mobile.milestonesys.com.pushtotalksample.PushToTalkSampleApplication.Companion.PARAM_CAMERA_NAME
+import pttsample.mobile.milestonesys.com.pushtotalksample.databinding.ActivityPushToTalkBinding
 
-
+private const val NUMBER_OF_AUDIO_CHANNELS = "1"
 class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
-
-    companion object {
-        const val NUMBER_OF_AUDIO_CHANNELS = "1"
-    }
-
+    private lateinit var binding: ActivityPushToTalkBinding
     /**
      * Application object that contains all the data that should be shared between activities
      */
@@ -41,7 +36,8 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_push_to_talk)
+        binding = ActivityPushToTalkBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         applicationObject = application as? PushToTalkSampleApplication
         val cameraName = intent.getStringExtra(PARAM_CAMERA_NAME)
@@ -58,7 +54,7 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
     }
 
     private fun setupViews() {
-        btnPTT.setOnTouchListener(fun(v: View, event: MotionEvent): Boolean {
+        binding.btnPTT.setOnTouchListener(fun(v: View, event: MotionEvent): Boolean {
             if (!hasMicrophonePermissions()) {
                 return true
             }
@@ -81,17 +77,13 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
      * Check if we have permissions to take the voice from the microphone.
      */
     private fun hasMicrophonePermissions(): Boolean {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val audioPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-            return if (audioPermission == PackageManager.PERMISSION_GRANTED) {
-                true
-            } else {
-                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 0)
-                false
-            }
+        val audioPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+        return if (audioPermission == PackageManager.PERMISSION_GRANTED) {
+            true
+        } else {
+            requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 0)
+            false
         }
-        return true
     }
 
 
@@ -99,7 +91,7 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
      * Requests stream id from the MoS and start pushing audio frames.
      */
     private fun requestStreamAndStartPTT(speakerId: String) {
-        Thread(Runnable {
+        Thread {
             applicationObject?.mipSdkMobile?.requestAudioStreamIn(
                 speakerId,
                 PushToTalkEngine.AUDIO_ENCODING,
@@ -119,7 +111,7 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
                 {
                     showErrorRequestStreamToast()
                 })
-        }).start()
+        }.start()
     }
 
     private fun showErrorRequestStreamToast() {
@@ -135,7 +127,7 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
     private fun startPushToTalk(streamId: String) {
         if (!pushToTalkEngine.isRecording) {
             pushToTalkEngine = PushToTalkEngine(this, streamId, this)
-            pushToTalkEngine.startRecording()
+            pushToTalkEngine.startRecording(this)
         }
     }
 

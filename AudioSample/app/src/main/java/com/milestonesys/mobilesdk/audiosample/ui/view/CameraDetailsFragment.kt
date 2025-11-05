@@ -179,7 +179,7 @@ class CameraDetailsFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        camerasViewModel.selectedCamera.observe(viewLifecycleOwner, {
+        camerasViewModel.selectedCamera.observe(viewLifecycleOwner) {
             binding.textViewCameraName.text = it.cameraName
             binding.textViewMicName.text = it.micName
 
@@ -191,22 +191,24 @@ class CameraDetailsFragment : Fragment() {
                     Snackbar.LENGTH_LONG
                 ).show()
             }
-        })
-        camerasViewModel.audioUrl.observe(viewLifecycleOwner, {
+        }
+        camerasViewModel.audioUrl.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.SUCCESS -> {
                     playingItem = MediaItem.fromUri(it.data.toString())
                     playCurrentItem()
                 }
+
                 DataStatus.ERROR -> {
-                    view?.let {
-                        v -> Snackbar.make(v, it.message!!, Snackbar.LENGTH_LONG).show()
+                    view?.let { v ->
+                        Snackbar.make(v, it.message!!, Snackbar.LENGTH_LONG).show()
                     }
                     onStopRequested()
                     isPlaying = false
                 }
-                else -> { }
+
+                else -> {}
             }
-        })
+        }
     }
 }

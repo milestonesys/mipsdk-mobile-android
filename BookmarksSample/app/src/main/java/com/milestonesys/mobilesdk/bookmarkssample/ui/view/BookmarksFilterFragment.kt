@@ -1,27 +1,31 @@
 package com.milestonesys.mobilesdk.bookmarkssample.ui.view
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import androidx.fragment.app.Fragment
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import androidx.core.view.children
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.milestonesys.mobilesdk.bookmarkssample.R
 import com.milestonesys.mobilesdk.bookmarkssample.data.model.CameraItem
 import com.milestonesys.mobilesdk.bookmarkssample.data.model.FilterModel
 import com.milestonesys.mobilesdk.bookmarkssample.databinding.FragmentBookmarksFilterBinding
 import com.milestonesys.mobilesdk.bookmarkssample.ui.viewmodel.BookmarksViewModel
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DataStatus
-import java.util.*
-import kotlin.collections.ArrayList
-import androidx.core.view.iterator
-import androidx.navigation.fragment.findNavController
-import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.milestonesys.mobilesdk.bookmarkssample.utils.SnackHelper
+import java.util.UUID
 
 
 class BookmarksFilterFragment : Fragment() {
@@ -58,8 +62,6 @@ class BookmarksFilterFragment : Fragment() {
             UUID.fromString(emptyId),
             resources.getString(R.string.bookmarks_filter_by_camera_value_any)
         )
-
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -78,23 +80,25 @@ class BookmarksFilterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_filter, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.menu_item_apply) {
+                    applyFilter()
+                    findNavController().popBackStack()
+                    return true
+                }
+                return false
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         setupUI()
         setupObserver()
     }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_filter, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_item_apply) {
-            applyFilter()
-            findNavController().popBackStack()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
 
     private fun setupUI() {
 
@@ -188,7 +192,7 @@ class BookmarksFilterFragment : Fragment() {
 
     private fun setupObserver() {
         onLoadingStarted()
-        bookmarksViewModel.cameras.observe(viewLifecycleOwner, {
+        bookmarksViewModel.cameras.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.SUCCESS -> {
                     onLoadingComplete()
@@ -196,14 +200,16 @@ class BookmarksFilterFragment : Fragment() {
                     it.data?.let { data -> filterByCameraOptions.addAll(data) }
                     setupOptions()
                 }
+
                 DataStatus.ERROR -> {
                     onLoadingComplete()
                     SnackHelper.showMessage(view, R.string.error_cameras)
                 }
+
                 else -> {
                 }
             }
-        })
+        }
     }
 
     private fun onLoadingStarted() {

@@ -78,9 +78,9 @@ class MainActivity : AppCompatActivity() {
         initSdk()
 
         //Execute connect command on a separate Thread
-        Thread(Runnable {
+        Thread {
             connectToSdk()
-        }).start()
+        }.start()
     }
 
     private fun connectToSdk() {
@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 
         address = serverAddressField?.text.toString()
         val portInputText = serverPortField?.text.toString()
-        if (!portInputText.isNullOrEmpty()) {
+        if (portInputText.isNotEmpty()) {
             port = Integer.parseInt(portInputText)
         }
         serverPortField?.setText(port.toString())

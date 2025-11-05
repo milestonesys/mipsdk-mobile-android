@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Size;
@@ -139,19 +138,19 @@ public class VideoPushActivity extends AppCompatActivity {
 
         cameraPreview.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
-            public void onSurfaceTextureAvailable(final SurfaceTexture surfaceTexture,
+            public void onSurfaceTextureAvailable(@NonNull final SurfaceTexture surfaceTexture,
                                                   final int width, final int height) {
                 VideoPushActivity.this.surfaceTexture = surfaceTexture;
                 tryToProvidePreviewSurface();
             }
 
             @Override
-            public void onSurfaceTextureSizeChanged(final SurfaceTexture surfaceTexture,
+            public void onSurfaceTextureSizeChanged(@NonNull final SurfaceTexture surfaceTexture,
                                                     final int width, final int height) {
             }
 
             @Override
-            public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
+            public boolean onSurfaceTextureDestroyed(@NonNull final SurfaceTexture surfaceTexture) {
                 VideoPushActivity.this.surfaceTexture = null;
                 if (surfaceRequest == null && surfaceReleaseFuture != null) {
                     surfaceReleaseFuture.addListener(surfaceTexture::release,
@@ -182,30 +181,27 @@ public class VideoPushActivity extends AppCompatActivity {
      * Check permissions for Camera and Microphone and ask for them if not given.
      */
     private void checkPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                openCamera();
-            } else {
-                if (!isRequesting) {
-                    isRequesting = true;
-                    ArrayList<String> permissionsToAskFor = new ArrayList<>();
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-                        permissionsToAskFor.add(Manifest.permission.CAMERA);
-                    }
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
-                        permissionsToAskFor.add(Manifest.permission.RECORD_AUDIO);
-                    }
-                    requestPermissions(permissionsToAskFor.toArray(new String[0]), REQUEST_CODE_ASK_PERMISSIONS);
-                }
-            }
-        } else {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             openCamera();
+        } else {
+            if (!isRequesting) {
+                isRequesting = true;
+                ArrayList<String> permissionsToAskFor = new ArrayList<>();
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+                    permissionsToAskFor.add(Manifest.permission.CAMERA);
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+                    permissionsToAskFor.add(Manifest.permission.RECORD_AUDIO);
+                }
+                requestPermissions(permissionsToAskFor.toArray(new String[0]), REQUEST_CODE_ASK_PERMISSIONS);
+            }
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
@@ -335,7 +331,7 @@ public class VideoPushActivity extends AppCompatActivity {
         }
 
         if (!pushToTalkHelper.isRecording()) {
-            pushToTalkHelper.startRecording();
+            pushToTalkHelper.startRecording(this);
         }
     }
 
@@ -440,7 +436,6 @@ public class VideoPushActivity extends AppCompatActivity {
         int displayRotation = getWindowManager().getDefaultDisplay().getRotation();
         switch (displayRotation) {
             case Surface.ROTATION_0:
-                displayRotation = 0;
                 break;
             case Surface.ROTATION_90:
                 displayRotation = 90;
@@ -474,11 +469,9 @@ public class VideoPushActivity extends AppCompatActivity {
             float parentRatio = parentWidth / (float) parentHeight;
             // Match shortest sides together.
             if (vfRatio < parentRatio) {
-                outWidth = parentWidth;
                 outHeight = Math.round(parentWidth / vfRatio);
             } else {
                 outWidth = Math.round(parentHeight * vfRatio);
-                outHeight = parentHeight;
             }
         }
         return new Size(outWidth, outHeight);

@@ -5,7 +5,6 @@ import android.view.*
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -29,9 +28,7 @@ class CamerasListFragment : Fragment() {
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
     private var _binding: FragmentCameraListBinding? = null
-
     private val camerasViewModel: CamerasViewModel by activityViewModels()
-
     private lateinit var camerasAdapter: CamerasAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,8 +38,11 @@ class CamerasListFragment : Fragment() {
         enterTransition = MaterialFadeThrough()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentCameraListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -65,12 +65,10 @@ class CamerasListFragment : Fragment() {
     private fun onCameraClicked(view: View, position: Int) {
         camerasViewModel.selectCameraAt(position)
 
-        val action =
-            CamerasListFragmentDirections
+        val action = CamerasListFragmentDirections
                 .actionCamerasListFragmentToCameraDetailFragment()
 
-        val detailsTransitionName =
-            getString(R.string.details_transition_name)
+        val detailsTransitionName = getString(R.string.details_transition_name)
 
         val extras: FragmentNavigator.Extras =
             FragmentNavigatorExtras(view to detailsTransitionName)
@@ -101,25 +99,28 @@ class CamerasListFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        camerasViewModel.cameras.observe(viewLifecycleOwner, {
+        camerasViewModel.cameras.observe(viewLifecycleOwner) {
             when (it.status) {
                 DataStatus.SUCCESS -> {
                     binding.progressIndicator.visibility = View.GONE
                     binding.recyclerView.visibility = View.VISIBLE
                     renderList(it.data)
                 }
+
                 DataStatus.LOADING -> {
                     binding.progressIndicator.visibility = View.VISIBLE
                     binding.recyclerView.visibility = View.GONE
                 }
+
                 DataStatus.ERROR -> {
                     //Handle Error
                     binding.progressIndicator.visibility = View.GONE
                     Snackbar.make(requireView(), "it.message", Snackbar.LENGTH_LONG).show()
                 }
-                else -> { }
+
+                else -> {}
             }
-        })
+        }
     }
 
     private fun renderList(cameras: List<CameraItem>?) {
@@ -145,18 +146,17 @@ class CamerasListFragment : Fragment() {
                 camerasViewModel.logOut()
 
                 val navController = findNavController()
-                val startDestination = navController.graph.startDestination
+                val startDestination = navController.graph.startDestinationId
 
                 navController.navigate(
                     startDestination,
                     null,
                     navOptions {
-                        popUpTo = navController.graph.id
+                        popUpTo (navController.graph.id)
                     }
                 )
             }
             it.visibility = View.VISIBLE
         }
     }
-
 }
