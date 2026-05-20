@@ -10,8 +10,7 @@ title: Milestone Integration Platform Software Development Kit Mobile Android (J
 # Milestone Integration Platform Software Development Kit Mobile Android (Java or Kotlin) samples
 
 The Milestone Integration Platform (MIP) enables fast and flexible integration between
-Milestone XProtect video management software (VMS), applications available from
-[Milestone Marketplace](<https://www.milestonesys.com/community/marketplace/>),
+Milestone XProtect video management software (VMS)
 and other third-party applications and devices.
 
 The MIP SDK Mobile provides a protocol API and SDK libraries for web and mobile solutions,
