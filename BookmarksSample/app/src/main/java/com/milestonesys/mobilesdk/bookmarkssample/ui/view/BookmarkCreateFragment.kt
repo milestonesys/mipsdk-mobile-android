@@ -18,6 +18,7 @@ import com.milestonesys.mobilesdk.bookmarkssample.data.model.CameraItem
 import com.milestonesys.mobilesdk.bookmarkssample.databinding.FragmentBookmarkCreateBinding
 import com.milestonesys.mobilesdk.bookmarkssample.ui.viewmodel.BookmarksViewModel
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DataStatus
+import com.milestonesys.mobilesdk.bookmarkssample.utils.EdgeToEdgeHelper
 import com.milestonesys.mobilesdk.bookmarkssample.utils.SnackHelper
 import java.util.*
 
@@ -61,6 +62,7 @@ class BookmarkCreateFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -121,7 +123,7 @@ class BookmarkCreateFragment : Fragment() {
 
     private fun setupObserver() {
         bookmarksViewModel.cameras.observe(viewLifecycleOwner) {
-            when (it.status) {
+            when (it?.status) {
                 DataStatus.LOADING -> {
                     onLoadingStarted()
                 }
@@ -239,8 +241,9 @@ class BookmarkCreateFragment : Fragment() {
     }
 
     private fun createDetailedBookmarkPlayback() {
-        findNavController().navigate(BookmarkCreateFragmentDirections
-            .actionBookmarkCreateFragmentToBookmarkExtendedCreateFragment(),
+        findNavController().navigate(
+            BookmarkCreateFragmentDirections
+                .actionBookmarkCreateFragmentToBookmarkExtendedCreateFragment(),
             navOptions {
                 popUpTo(R.id.bookmarksListFragment)
             }

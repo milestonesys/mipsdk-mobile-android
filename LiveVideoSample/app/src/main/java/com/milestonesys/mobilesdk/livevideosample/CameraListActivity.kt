@@ -10,7 +10,9 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.milestonesys.mipsdkmobile.communication.CommunicationItem
 
 /**
@@ -23,16 +25,24 @@ class CameraListActivity : AppCompatActivity() {
     private var camerasAdapter: CameraAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera_list)
 
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeTopViewInsets(toolbar)
+
         applicationObject = application as SDKSampleApplication?
         cameraListView = findViewById(R.id.cameraList)
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(cameraListView!!, applyImeToBottom = false)
+
         camerasAdapter = CameraAdapter(this, applicationObject!!.allAvailableCameras)
         cameraListView?.adapter = camerasAdapter
 
         cameraListView?.setOnItemClickListener { adapterView: AdapterView<*>, _: View, i: Int, _: Long ->
-            val cameraPressed: CommunicationItem = adapterView.getItemAtPosition(i) as CommunicationItem
+            val cameraPressed: CommunicationItem =
+                adapterView.getItemAtPosition(i) as CommunicationItem
 
             val b = Bundle()
             b.putString(PARAM_CAMERA_NAME, cameraPressed.name)
@@ -47,9 +57,11 @@ class CameraListActivity : AppCompatActivity() {
     }
 }
 
-class CameraAdapter(context: Context, cameras: ArrayList<CommunicationItem>?) : ArrayAdapter<CommunicationItem>(context, 0, cameras!!) {
+class CameraAdapter(context: Context, cameras: ArrayList<CommunicationItem>?) :
+    ArrayAdapter<CommunicationItem>(context, 0, cameras!!) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.camera_list_item, parent, false)
+        val view = convertView ?: LayoutInflater.from(context)
+            .inflate(R.layout.camera_list_item, parent, false)
         val cameraName: TextView = view.findViewById(R.id.camera_name)
         cameraName.text = getItem(position)?.name
         return view

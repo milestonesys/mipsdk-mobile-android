@@ -26,7 +26,7 @@ class BookmarkEditFragment : BookmarkExtendedCreateFragment() {
         super.setupObserver()
 
         bookmarksViewModel.selectedBookmark.observe(viewLifecycleOwner) {
-            when (it.status) {
+            when (it?.status) {
                 DataStatus.SUCCESS -> {
                     onDataLoaded()
                 }

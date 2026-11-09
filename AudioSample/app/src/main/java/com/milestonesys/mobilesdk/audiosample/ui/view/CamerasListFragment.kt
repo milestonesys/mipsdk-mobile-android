@@ -12,15 +12,15 @@ import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.transition.platform.MaterialFadeThrough
+import com.milestonesys.mobilesdk.audiosample.R
 import com.milestonesys.mobilesdk.audiosample.data.model.CameraItem
 import com.milestonesys.mobilesdk.audiosample.databinding.FragmentCameraListBinding
 import com.milestonesys.mobilesdk.audiosample.ui.adapter.CamerasAdapter
 import com.milestonesys.mobilesdk.audiosample.ui.adapter.CamerasAdapter.CameraClickListener
 import com.milestonesys.mobilesdk.audiosample.ui.viewmodel.CamerasViewModel
 import com.milestonesys.mobilesdk.audiosample.utils.DataStatus
-import kotlin.collections.ArrayList
-import com.google.android.material.transition.platform.MaterialFadeThrough
-import com.milestonesys.mobilesdk.audiosample.R
+import com.milestonesys.mobilesdk.audiosample.utils.EdgeToEdgeHelper
 
 
 class CamerasListFragment : Fragment() {
@@ -55,6 +55,7 @@ class CamerasListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
 
@@ -66,7 +67,7 @@ class CamerasListFragment : Fragment() {
         camerasViewModel.selectCameraAt(position)
 
         val action = CamerasListFragmentDirections
-                .actionCamerasListFragmentToCameraDetailFragment()
+            .actionCamerasListFragmentToCameraDetailFragment()
 
         val detailsTransitionName = getString(R.string.details_transition_name)
 
@@ -100,7 +101,7 @@ class CamerasListFragment : Fragment() {
 
     private fun setupObserver() {
         camerasViewModel.cameras.observe(viewLifecycleOwner) {
-            when (it.status) {
+            when (it?.status) {
                 DataStatus.SUCCESS -> {
                     binding.progressIndicator.visibility = View.GONE
                     binding.recyclerView.visibility = View.VISIBLE
@@ -152,7 +153,7 @@ class CamerasListFragment : Fragment() {
                     startDestination,
                     null,
                     navOptions {
-                        popUpTo (navController.graph.id)
+                        popUpTo(navController.graph.id)
                     }
                 )
             }

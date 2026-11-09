@@ -1,35 +1,38 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+}
+
 android {
-    compileSdk 35
-    namespace "com.milestonesys.mobilesdk.directstreamingsample"
+    compileSdkVersion 36
+    namespace = "com.milestonesys.mobilesdk.directstreamingsample"
     defaultConfig {
-        applicationId "com.milestonesys.mobilesdk.directstreamingsample"
-        minSdkVersion 28
-        targetSdkVersion 35
+        applicationId = "com.milestonesys.mobilesdk.directstreamingsample"
+        minSdkVersion 33
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = '21'
-    }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
-    implementation "androidx.core:core-ktx:1.16.0"
+    implementation "androidx.core:core-ktx:1.18.0"
     implementation project(':mipsdkmobile')
 }
 repositories {

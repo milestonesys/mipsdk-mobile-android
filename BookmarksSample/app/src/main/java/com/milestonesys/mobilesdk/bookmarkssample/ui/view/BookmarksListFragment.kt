@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.*
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.Fragment
 import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.FragmentNavigator
@@ -24,7 +24,7 @@ import com.milestonesys.mobilesdk.bookmarkssample.ui.adapter.BookmarksAdapter
 import com.milestonesys.mobilesdk.bookmarkssample.ui.viewmodel.BookmarksViewModel
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DataStatus
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DateHelper
-import java.lang.StringBuilder
+import com.milestonesys.mobilesdk.bookmarkssample.utils.EdgeToEdgeHelper
 
 class BookmarksListFragment : Fragment() {
 
@@ -61,6 +61,7 @@ class BookmarksListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -123,7 +124,7 @@ class BookmarksListFragment : Fragment() {
 
     private fun setupObserver() {
         bookmarksViewModel.bookmarks.observe(viewLifecycleOwner) {
-            when (it.status) {
+            when (it?.status) {
                 DataStatus.LOADING -> {
                     binding.progressIndicator.visibility = View.VISIBLE
                     binding.groupMainContent.visibility = View.GONE
