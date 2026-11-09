@@ -3,13 +3,15 @@ package pttsample.mobile.milestonesys.com.pushtotalksample
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.milestonesys.mipsdkmobile.communication.CommunicationItem
 import pttsample.mobile.milestonesys.com.pushtotalksample.PushToTalkSampleApplication.Companion.PARAM_CAMERA_ID
 import pttsample.mobile.milestonesys.com.pushtotalksample.PushToTalkSampleApplication.Companion.PARAM_CAMERA_NAME
@@ -24,9 +26,13 @@ class CameraListActivity : AppCompatActivity() {
     private var camerasAdapter: CameraAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         binding = ActivityCameraListBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeTopViewInsets(toolbar)
         setupViews()
     }
 
@@ -46,6 +52,10 @@ class CameraListActivity : AppCompatActivity() {
             intent.putExtras(bundle)
             startActivity(intent)
         }
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(
+            binding.cameraListView,
+            applyImeToBottom = false
+        )
     }
 
     override fun onDestroy() {
@@ -58,7 +68,8 @@ class CameraAdapter(context: Context, cameras: MutableList<CommunicationItem>) :
     ArrayAdapter<CommunicationItem>(context, 0, cameras) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val innerConvertView = convertView ?: LayoutInflater.from(context).inflate(R.layout.camera_list_item, parent, false)
+        val innerConvertView = convertView ?: LayoutInflater.from(context)
+            .inflate(R.layout.camera_list_item, parent, false)
         val cameraName: TextView = innerConvertView.findViewById(R.id.cameraName)
         cameraName.text = getItem(position)?.name
         return innerConvertView

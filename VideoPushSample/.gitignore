@@ -11,3 +11,4 @@
 /build
 /captures
 .externalNativeBuild
+/gradle/gradle-daemon-jvm.properties

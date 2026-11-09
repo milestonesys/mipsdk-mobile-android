@@ -8,7 +8,10 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.exoplayer2.*
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.android.material.transition.platform.MaterialFadeThrough
@@ -16,6 +19,7 @@ import com.milestonesys.mobilesdk.audiosample.R
 import com.milestonesys.mobilesdk.audiosample.databinding.FragmentCameraDetailsBinding
 import com.milestonesys.mobilesdk.audiosample.ui.viewmodel.CamerasViewModel
 import com.milestonesys.mobilesdk.audiosample.utils.DataStatus
+import com.milestonesys.mobilesdk.audiosample.utils.EdgeToEdgeHelper
 
 
 class CameraDetailsFragment : Fragment() {
@@ -43,8 +47,10 @@ class CameraDetailsFragment : Fragment() {
         sharedElementEnterTransition = MaterialContainerTransform()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentCameraDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -57,12 +63,13 @@ class CameraDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         setupUI()
         setupObserver()
     }
 
     private fun initializePlayer() {
-        player = SimpleExoPlayer.Builder(requireContext()).build()
+        player = ExoPlayer.Builder(requireContext()).build()
         player?.playWhenReady = true
 
         playerListener = object : Player.Listener {
@@ -169,10 +176,12 @@ class CameraDetailsFragment : Fragment() {
         }
 
         audioOnDrawable = ResourcesCompat.getDrawable(
-            requireContext().resources, R.drawable.ic_all_sources, requireContext().theme)
+            requireContext().resources, R.drawable.ic_all_sources, requireContext().theme
+        )
 
         audioOffDrawable = ResourcesCompat.getDrawable(
-            requireContext().resources, R.drawable.ic_mute, requireContext().theme)
+            requireContext().resources, R.drawable.ic_mute, requireContext().theme
+        )
 
         buttonPlayText = getString(R.string.button_play)
         buttonStopText = getString(R.string.button_stop)
@@ -192,22 +201,24 @@ class CameraDetailsFragment : Fragment() {
                 ).show()
             }
         }
-        camerasViewModel.audioUrl.observe(viewLifecycleOwner) {
-            when (it.status) {
-                DataStatus.SUCCESS -> {
-                    playingItem = MediaItem.fromUri(it.data.toString())
-                    playCurrentItem()
-                }
-
-                DataStatus.ERROR -> {
-                    view?.let { v ->
-                        Snackbar.make(v, it.message!!, Snackbar.LENGTH_LONG).show()
+        camerasViewModel.audioUrl.observe(viewLifecycleOwner) { resource ->
+            resource?.let {
+                when (it.status) {
+                    DataStatus.SUCCESS -> {
+                        playingItem = MediaItem.fromUri(it.data.toString())
+                        playCurrentItem()
                     }
-                    onStopRequested()
-                    isPlaying = false
-                }
 
-                else -> {}
+                    DataStatus.ERROR -> {
+                        view?.let { v ->
+                            Snackbar.make(v, it.message!!, Snackbar.LENGTH_LONG).show()
+                        }
+                        onStopRequested()
+                        isPlaying = false
+                    }
+
+                    else -> {}
+                }
             }
         }
     }

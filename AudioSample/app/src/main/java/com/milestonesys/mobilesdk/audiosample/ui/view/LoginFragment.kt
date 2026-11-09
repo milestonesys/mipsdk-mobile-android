@@ -16,6 +16,8 @@ import com.milestonesys.mobilesdk.audiosample.utils.DataStatus
 import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.milestonesys.mobilesdk.audiosample.R
 import com.milestonesys.mobilesdk.audiosample.databinding.FragmentLoginBinding
+import androidx.core.content.edit
+import com.milestonesys.mobilesdk.audiosample.utils.EdgeToEdgeHelper
 
 
 class LoginFragment : Fragment() {
@@ -47,6 +49,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -120,7 +123,7 @@ class LoginFragment : Fragment() {
 
     private fun saveServerInfo() {
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-        with (sharedPref.edit()) {
+        sharedPref.edit {
             putString(
                 getString(R.string.preferences_address),
                 binding.editTextServerAddress.text.toString()
@@ -137,7 +140,6 @@ class LoginFragment : Fragment() {
                 getString(R.string.preferences_pass),
                 binding.editTextPassword.text.toString()
             )
-            apply()
         }
     }
 

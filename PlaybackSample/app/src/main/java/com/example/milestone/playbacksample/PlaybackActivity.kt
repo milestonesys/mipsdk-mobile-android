@@ -7,7 +7,9 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.milestonesys.mipsdkmobile.RecordData
 import com.milestonesys.mipsdkmobile.callbacks.VideoReceiver
 import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
@@ -16,7 +18,8 @@ import com.milestonesys.mipsdkmobile.communication.PlaybackVideo
 import com.milestonesys.mipsdkmobile.communication.VideoCommand
 import java.io.ByteArrayInputStream
 import java.text.DateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.UUID
 
 /**
  * Activity that is playing playback video using MIPSDKMobile
@@ -39,8 +42,15 @@ class PlaybackActivity : AppCompatActivity(), VideoReceiver {
     private val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_playback)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeTopViewInsets(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(findViewById(R.id.scroll_root))
+
         //Image view to show video on
         videoView = findViewById(R.id.video_view)
         applicationObject = application as SDKSampleApplication?
@@ -162,7 +172,8 @@ class PlaybackActivity : AppCompatActivity(), VideoReceiver {
     override fun receiveVideo(videoCommand: VideoCommand) {
         if (videoCommand.payloadSize > 0) {
             runOnUiThread { updateTimeStamp(videoCommand.timeStamp) }
-            val inputStream = ByteArrayInputStream(videoCommand.payload, 0, videoCommand.payloadSize)
+            val inputStream =
+                ByteArrayInputStream(videoCommand.payload, 0, videoCommand.payloadSize)
             bmp = BitmapFactory.decodeStream(inputStream)
             try {
                 runOnUiThread {

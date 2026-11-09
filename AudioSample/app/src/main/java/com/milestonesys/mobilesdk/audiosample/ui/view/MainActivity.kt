@@ -14,17 +14,21 @@ import androidx.navigation.ui.NavigationUI
 import com.milestonesys.mobilesdk.audiosample.NavGraphDirections
 import com.milestonesys.mobilesdk.audiosample.R
 import com.milestonesys.mobilesdk.audiosample.ui.viewmodel.CamerasViewModel
+import androidx.activity.enableEdgeToEdge
+import com.milestonesys.mobilesdk.audiosample.utils.EdgeToEdgeHelper
 
 class MainActivity : AppCompatActivity() {
 
     private val camerasViewModel: CamerasViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val toolbar = findViewById<Toolbar>(R.id.main_toolbar)
         setSupportActionBar(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeTopViewInsets(toolbar)
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -46,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.menu_item_about -> onAboutPressed()
             R.id.menu_item_logout -> onLogoutPressed()
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -67,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             startDestination,
             null,
             navOptions {
-                popUpTo = navController.graph.id
+                popUpTo(navController.graph.id)
             }
         )
         return true

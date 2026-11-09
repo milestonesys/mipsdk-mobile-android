@@ -3,12 +3,14 @@ package pttsample.mobile.milestonesys.com.pushtotalksample
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.milestonesys.mipsdkmobile.MIPSDKMobile
 import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
 import com.milestonesys.mipsdkmobile.communication.CommunicationItem
@@ -42,9 +44,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeTopViewInsets(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.scrollRoot)
 
         applicationObject = application as PushToTalkSampleApplication?
 

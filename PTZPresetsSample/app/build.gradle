@@ -1,19 +1,21 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdk 35
-    namespace "com.milestonesys.mobilesdk.ptzpresets"
+    compileSdk 36
+    namespace = "com.milestonesys.mobilesdk.ptzpresets"
     defaultConfig {
-        applicationId "com.milestonesys.mobilesdk.ptzpresetssample"
-        minSdkVersion 28
-        targetSdkVersion 35
+        applicationId = "com.milestonesys.mobilesdk.ptzpresetssample"
+        minSdkVersion 33
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled = false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     configurations.implementation {
