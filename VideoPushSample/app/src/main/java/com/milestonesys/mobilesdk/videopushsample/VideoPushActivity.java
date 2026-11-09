@@ -2,33 +2,28 @@ package com.milestonesys.mobilesdk.videopushsample;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.graphics.Matrix;
-import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Size;
+import android.view.OrientationEventListener;
 import android.view.Surface;
-import android.view.TextureView;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
-import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -38,11 +33,11 @@ import com.milestonesys.mipsdkmobile.communication.HTTPConnection;
 import com.milestonesys.mipsdkmobile.communication.VideoCommand;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.milestonesys.mobilesdk.videopushsample.MainActivity.REQUEST_PERMISSIONS_DENIED;
@@ -57,7 +52,6 @@ public class VideoPushActivity extends AppCompatActivity {
 
     private VideoPushApplication app = null;
 
-    private Size resolution;
     private VideoCommand vCmd = null;
     private String videoId = null;
     private VideoPushHelper videoPushHelper = null;
@@ -66,21 +60,21 @@ public class VideoPushActivity extends AppCompatActivity {
     private boolean isPushingVideo = false;
     private boolean isRequesting = false;
 
-    private SurfaceTexture surfaceTexture;
     private Button startVideoPushButton, stopVideoPushButton;
-    private TextureView cameraPreview = null;
-    private Switch audioSwitch;
+    private PreviewView cameraPreview = null;
+    private OrientationEventListener orientationEventListener;
+    private SwitchCompat audioSwitch;
     private View recordingInProgressView;
 
     private final Animation animation = new AlphaAnimation(0.0F, 1.0F);
 
-    @SuppressWarnings("WeakerAccess")
-    private SurfaceRequest surfaceRequest;
-
-    @SuppressWarnings("WeakerAccess")
-    private ListenableFuture<SurfaceRequest.Result> surfaceReleaseFuture;
+    private Preview previewUseCase;
+    private ImageAnalysis imageAnalysisUseCase;
+    private ExecutorService analysisExecutor;
 
     private ProcessCameraProvider cameraProvider;
+    private int lastAppliedRotation = -1;
+    private boolean suppressAudioSwitchCallback = false;
     private static final Size targetResolution = new Size(DEFAULT_RESOLUTION_WIDTH, DEFAULT_RESOLUTION_HEIGHT);
 
     @Override
@@ -98,6 +92,7 @@ public class VideoPushActivity extends AppCompatActivity {
         super.onResume();
 
         videoPushHelper = new VideoPushHelper(app.mipSdkMobile);
+        enableRotationUpdates();
 
         if (cameraProvider == null) {
             ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
@@ -116,12 +111,17 @@ public class VideoPushActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
+
+        disableRotationUpdates();
+
         releaseCamera();
         stopStream();
         showStartButton();
-        audioSwitch.setChecked(false);
+
+        setAudioSwitchCheckedSilently(false);
+        audioSwitch.setEnabled(false);
         vCmd = null;
     }
 
@@ -133,38 +133,11 @@ public class VideoPushActivity extends AppCompatActivity {
         audioSwitch = findViewById(R.id.audio_switch);
         recordingInProgressView = findViewById(R.id.recording_view);
 
-        cameraPreview = findViewById(R.id.camera_texture_view);
+        cameraPreview = findViewById(R.id.camera_preview_view);
+
+        audioSwitch.setChecked(false);
+        audioSwitch.setEnabled(false);
         assignClickListeners();
-
-        cameraPreview.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
-            @Override
-            public void onSurfaceTextureAvailable(@NonNull final SurfaceTexture surfaceTexture,
-                                                  final int width, final int height) {
-                VideoPushActivity.this.surfaceTexture = surfaceTexture;
-                tryToProvidePreviewSurface();
-            }
-
-            @Override
-            public void onSurfaceTextureSizeChanged(@NonNull final SurfaceTexture surfaceTexture,
-                                                    final int width, final int height) {
-            }
-
-            @Override
-            public boolean onSurfaceTextureDestroyed(@NonNull final SurfaceTexture surfaceTexture) {
-                VideoPushActivity.this.surfaceTexture = null;
-                if (surfaceRequest == null && surfaceReleaseFuture != null) {
-                    surfaceReleaseFuture.addListener(surfaceTexture::release,
-                            ContextCompat.getMainExecutor(cameraPreview.getContext()));
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            @Override
-            public void onSurfaceTextureUpdated(final SurfaceTexture surfaceTexture) {
-            }
-        });
     }
 
     /**
@@ -227,18 +200,36 @@ public class VideoPushActivity extends AppCompatActivity {
         stopVideoPushButton.setOnClickListener(v -> {
             vCmd = null;
             showStartButton();
+            setAudioSwitchCheckedSilently(false);
+            audioSwitch.setEnabled(false);
             stopStream();
         });
 
         audioSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isPushingVideo) {
-                if (isChecked) {
-                    requestStreamAndStartPTT(videoId);
-                    Toast.makeText(VideoPushActivity.this, getString(R.string.audio_record_start), Toast.LENGTH_SHORT).show();
-                } else {
-                    stopPushToTalk();
-                    Toast.makeText(VideoPushActivity.this, getString(R.string.audio_record_stop), Toast.LENGTH_SHORT).show();
+            if (suppressAudioSwitchCallback) return;
+
+            final boolean userInitiated = buttonView.isPressed();
+
+            if (!isChecked) {
+                boolean wasRecording = (pushToTalkHelper != null && pushToTalkHelper.isRecording());
+                stopPushToTalk();
+
+                if (userInitiated && wasRecording) {
+                    Toast.makeText(VideoPushActivity.this,
+                            getString(R.string.audio_record_stop), Toast.LENGTH_SHORT).show();
                 }
+                return;
+            }
+
+            if (!isPushingVideo || videoId == null) {
+                setAudioSwitchCheckedSilently(false); // avoid re-entrant stop toast
+                return;
+            }
+
+            requestStreamAndStartPTT(videoId);
+            if (userInitiated) {
+                Toast.makeText(VideoPushActivity.this,
+                        getString(R.string.audio_record_start), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -279,44 +270,91 @@ public class VideoPushActivity extends AppCompatActivity {
         }
     }
 
-    private void bindCameraUseCases(CameraSelector lensFacing) {
-        // Either aspect ratio, or resolution (not both) has to be set.
-        // In this case, the resolution is set
-        Preview preview = new Preview.Builder()
-                .setTargetRotation(cameraPreview.getDisplay().getRotation())
+    private void bindCameraUseCases(CameraSelector cameraSelector) {
+        if (cameraProvider == null) return;
+
+        int rotation = (cameraPreview.getDisplay() != null)
+                ? cameraPreview.getDisplay().getRotation()
+                : Surface.ROTATION_0;
+
+        previewUseCase = new Preview.Builder()
+                .setTargetRotation(rotation)
                 .setTargetResolution(targetResolution)
                 .build();
+        previewUseCase.setSurfaceProvider(cameraPreview.getSurfaceProvider());
 
-        preview.setSurfaceProvider(
-                (surfaceRequest) -> {
-                    resolution = surfaceRequest.getResolution();
-                    if (this.surfaceRequest != null) {
-                        this.surfaceRequest.willNotProvideSurface();
-                    }
-                    this.surfaceRequest = surfaceRequest;
-                    this.surfaceRequest.addRequestCancellationListener(
-                            ContextCompat.getMainExecutor(cameraPreview.getContext()), () -> {
-                                if (this.surfaceRequest != null && this.surfaceRequest == surfaceRequest) {
-                                    this.surfaceRequest = null;
-                                    surfaceReleaseFuture = null;
-                                }
-                            });
-                    tryToProvidePreviewSurface();
-                });
-
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetRotation(cameraPreview.getDisplay().getRotation())
+        imageAnalysisUseCase = new ImageAnalysis.Builder()
+                .setTargetRotation(rotation)
                 .setTargetResolution(targetResolution)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
                 .build();
 
-        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), new FrameGrabber());
+        if (analysisExecutor == null || analysisExecutor.isShutdown() || analysisExecutor.isTerminated()) {
+            analysisExecutor = Executors.newSingleThreadExecutor();
+        }
 
-        cameraProvider.bindToLifecycle(this, lensFacing, preview, imageAnalysis);
+        imageAnalysisUseCase.setAnalyzer(analysisExecutor, new FrameGrabber());
+
+        cameraProvider.unbindAll();
+        cameraProvider.bindToLifecycle(this, cameraSelector, previewUseCase, imageAnalysisUseCase);
+
+        enableRotationUpdates();
+    }
+
+    private void enableRotationUpdates() {
+        if (orientationEventListener != null) return;
+
+        orientationEventListener = new OrientationEventListener(this) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                if (cameraPreview == null || cameraPreview.getDisplay() == null) return;
+
+                int rotation = cameraPreview.getDisplay().getRotation();
+
+                if (rotation == lastAppliedRotation) return;
+                lastAppliedRotation = rotation;
+
+                if (previewUseCase != null) previewUseCase.setTargetRotation(rotation);
+                if (imageAnalysisUseCase != null) imageAnalysisUseCase.setTargetRotation(rotation);
+            }
+        };
+
+        if (orientationEventListener.canDetectOrientation()) {
+            orientationEventListener.enable();
+        }
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (orientationEventListener != null) {
+            orientationEventListener.disable();
+            orientationEventListener = null;
+        }
+    }
+
+    private void disableRotationUpdates() {
+        if (orientationEventListener != null) {
+            orientationEventListener.disable();
+            orientationEventListener = null;
+        }
+        lastAppliedRotation = -1;
     }
 
     private void releaseCamera() {
         if (cameraProvider != null) {
             cameraProvider.unbindAll();
+        }
+
+        if (imageAnalysisUseCase != null) {
+            imageAnalysisUseCase.clearAnalyzer();
+        }
+
+        if (analysisExecutor != null) {
+            analysisExecutor.shutdownNow();
+            analysisExecutor = null;
         }
     }
 
@@ -339,6 +377,8 @@ public class VideoPushActivity extends AppCompatActivity {
      * Stops the push to talk.
      */
     private void stopPushToTalk() {
+        if (pushToTalkHelper == null) return;
+
         if (pushToTalkHelper.isRecording()) {
             pushToTalkHelper.stopRecording();
         }
@@ -356,125 +396,13 @@ public class VideoPushActivity extends AppCompatActivity {
                         communicationCommand -> {
                             String streamId = communicationCommand.getOutputParam().get(CommunicationCommand.PARAM_STREAM_ID);
                             startPushToTalk(streamId);
-                        }, communicationCommand -> VideoPushActivity.this.runOnUiThread(() ->
-                                Toast.makeText(VideoPushActivity.this, getString(R.string.error_request_stream), Toast.LENGTH_SHORT).show()));
+                        }, communicationCommand -> VideoPushActivity.this.runOnUiThread(() -> {
+                            setAudioSwitchCheckedSilently(false);
+                            Toast.makeText(VideoPushActivity.this,
+                                    getString(R.string.error_request_stream), Toast.LENGTH_SHORT).show();
+                        }));
             }
         }.start();
-    }
-
-    @SuppressWarnings("WeakerAccess")
-    void tryToProvidePreviewSurface() {
-        if (resolution == null || surfaceTexture == null || surfaceRequest == null) {
-            return;
-        }
-        surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
-
-        final Surface surface = new Surface(surfaceTexture);
-        @SuppressLint("RestrictedApi") final ListenableFuture<SurfaceRequest.Result> surfaceReleaseFuture =
-                CallbackToFutureAdapter.getFuture(completer -> {
-                    surfaceRequest.provideSurface(surface,
-                            CameraXExecutors.directExecutor(), completer::set);
-                    return "provideSurface[request=" + surfaceRequest + " surface=" + surface
-                            + "]";
-                });
-        this.surfaceReleaseFuture = surfaceReleaseFuture;
-        this.surfaceReleaseFuture.addListener(() -> {
-            surface.release();
-            if (this.surfaceReleaseFuture == surfaceReleaseFuture) {
-                this.surfaceReleaseFuture = null;
-            }
-        }, ContextCompat.getMainExecutor(cameraPreview.getContext()));
-        surfaceRequest = null;
-        transformPreview(resolution);
-    }
-
-    void transformPreview(@NonNull Size resolution) {
-        if (resolution.getWidth() == 0 || resolution.getHeight() == 0) {
-            return;
-        }
-        if (cameraPreview.getWidth() == 0 || cameraPreview.getHeight() == 0) {
-            return;
-        }
-        Matrix matrix = new Matrix();
-        int left = cameraPreview.getLeft();
-        int right = cameraPreview.getRight();
-        int top = cameraPreview.getTop();
-        int bottom = cameraPreview.getBottom();
-        // Compute the preview ui size based on the available width, height and ui orientation.
-        int viewWidth = (right - left);
-        int viewHeight = (bottom - top);
-        int displayRotation = getDisplayRotation();
-        Size scaled =
-                calculatePreviewViewDimens(
-                        resolution, viewWidth, viewHeight, displayRotation);
-        // Compute the center of the view.
-        int centerX = viewWidth / 2;
-        int centerY = viewHeight / 2;
-        // Do corresponding rotation to correct the preview direction
-        matrix.postRotate(-getDisplayRotation(), centerX, centerY);
-        // Compute the scale value for center crop mode
-        float xScale = scaled.getWidth() / (float) viewWidth;
-        float yScale = scaled.getHeight() / (float) viewHeight;
-        if (getDisplayRotation() == 90 || getDisplayRotation() == 270) {
-            xScale = scaled.getWidth() / (float) viewHeight;
-            yScale = scaled.getHeight() / (float) viewWidth;
-        }
-        // Only two digits after the decimal point are valid for postScale. Need to get ceiling of two
-        // digits floating value to do the scale operation. Otherwise, the result may be scaled not
-        // large enough and will have some blank lines on the screen.
-        xScale = new BigDecimal(xScale).setScale(2, BigDecimal.ROUND_CEILING).floatValue();
-        yScale = new BigDecimal(yScale).setScale(2, BigDecimal.ROUND_CEILING).floatValue();
-        // Do corresponding scale to resolve the deformation problem
-        matrix.postScale(xScale, yScale, centerX, centerY);
-        cameraPreview.setTransform(matrix);
-    }
-
-    /**
-     * @return One of 0, 90, 180, 270.
-     */
-    private int getDisplayRotation() {
-        int displayRotation = getWindowManager().getDefaultDisplay().getRotation();
-        switch (displayRotation) {
-            case Surface.ROTATION_0:
-                break;
-            case Surface.ROTATION_90:
-                displayRotation = 90;
-                break;
-            case Surface.ROTATION_180:
-                displayRotation = 180;
-                break;
-            case Surface.ROTATION_270:
-                displayRotation = 270;
-                break;
-            default:
-                throw new UnsupportedOperationException(
-                        "Unsupported display rotation: " + displayRotation);
-        }
-        return displayRotation;
-    }
-
-    private Size calculatePreviewViewDimens(
-            Size srcSize, int parentWidth, int parentHeight, int displayRotation) {
-        int inWidth = srcSize.getWidth();
-        int inHeight = srcSize.getHeight();
-        if (displayRotation == 0 || displayRotation == 180) {
-            // Need to reverse the width and height because of the landscape orientation.
-            inWidth = srcSize.getHeight();
-            inHeight = srcSize.getWidth();
-        }
-        int outWidth = parentWidth;
-        int outHeight = parentHeight;
-        if (inWidth != 0 && inHeight != 0) {
-            float vfRatio = inWidth / (float) inHeight;
-            float parentRatio = parentWidth / (float) parentHeight;
-            // Match shortest sides together.
-            if (vfRatio < parentRatio) {
-                outHeight = Math.round(parentWidth / vfRatio);
-            } else {
-                outWidth = Math.round(parentHeight * vfRatio);
-            }
-        }
-        return new Size(outWidth, outHeight);
     }
 
     public int getCamerasExistence() {
@@ -493,11 +421,21 @@ public class VideoPushActivity extends AppCompatActivity {
         return cameras;
     }
 
+    private void setAudioSwitchCheckedSilently(boolean checked) {
+        if (audioSwitch == null) return;
+        suppressAudioSwitchCallback = true;
+        audioSwitch.setChecked(checked);
+        suppressAudioSwitchCallback = false;
+    }
+
     private class FrameGrabber implements ImageAnalysis.Analyzer {
         @Override
         public void analyze(@NonNull ImageProxy image) {
-            videoPushHelper.sendData(image, vCmd, conn, VideoPushActivity.this::stopStream);
-            image.close();
+            try {
+                videoPushHelper.sendData(image, vCmd, conn, VideoPushActivity.this::stopStream);
+            } finally {
+                image.close();
+            }
         }
     }
 
@@ -505,19 +443,24 @@ public class VideoPushActivity extends AppCompatActivity {
      * Stop stream by sending request to MIP SDK Mobile
      */
     private void stopStream() {
-
         new Thread("Stop video push stream") {
+            @Override
             public void run() {
-                if (videoId != null) {
-                    if (audioSwitch.isChecked()) {
-                        app.mipSdkMobile.stopAudioStream(videoId, null, null);
-                    }
-                    if (videoId != null) {
-                        app.mipSdkMobile.stopVideoStream(videoId, null, null);
-                        videoId = null;
-                    }
+                stopPushToTalk();
+
+                final String id = videoId;
+                if (id != null && app.mipSdkMobile != null) {
+                    app.mipSdkMobile.stopAudioStream(id, null, null);
+                    app.mipSdkMobile.stopVideoStream(id, null, null);
                 }
+
+                videoId = null;
                 isPushingVideo = false;
+
+                runOnUiThread(() -> {
+                    setAudioSwitchCheckedSilently(false);
+                    audioSwitch.setEnabled(false);
+                });
             }
         }.start();
     }
@@ -570,6 +513,7 @@ public class VideoPushActivity extends AppCompatActivity {
                     if (!error) {
                         isPushingVideo = true;
                         VideoPushActivity.this.runOnUiThread(() -> {
+                            audioSwitch.setEnabled(true);
                             if (audioSwitch.isChecked()) {
                                 requestStreamAndStartPTT(videoId);
                             }

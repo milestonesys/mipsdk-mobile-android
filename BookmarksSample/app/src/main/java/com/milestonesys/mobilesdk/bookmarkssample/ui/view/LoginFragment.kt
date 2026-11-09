@@ -3,6 +3,7 @@ package com.milestonesys.mobilesdk.bookmarkssample.ui.view
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import androidx.core.content.edit
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.children
@@ -16,6 +17,7 @@ import com.milestonesys.mobilesdk.bookmarkssample.R
 import com.milestonesys.mobilesdk.bookmarkssample.databinding.FragmentLoginBinding
 import com.milestonesys.mobilesdk.bookmarkssample.ui.viewmodel.BookmarksViewModel
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DataStatus
+import com.milestonesys.mobilesdk.bookmarkssample.utils.EdgeToEdgeHelper
 
 class LoginFragment : Fragment() {
 
@@ -48,6 +50,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -125,7 +128,7 @@ class LoginFragment : Fragment() {
 
     private fun saveServerInfo() {
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-        with(sharedPref.edit()) {
+        sharedPref.edit {
             putString(
                 getString(R.string.preferences_address),
                 binding.editTextServerAddress.text.toString()
@@ -142,7 +145,6 @@ class LoginFragment : Fragment() {
                 getString(R.string.preferences_pass),
                 binding.editTextPassword.text.toString()
             )
-            apply()
         }
     }
 

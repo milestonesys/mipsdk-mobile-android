@@ -185,7 +185,7 @@ class PushToTalkEngine {
                 outStream.reset()
                 sendData(dataToSend)
             }
-        } catch (e: OutOfMemoryError) {
+        } catch (_: OutOfMemoryError) {
             stopRecording()
         }
     }

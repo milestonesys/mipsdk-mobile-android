@@ -4,19 +4,21 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import com.milestonesys.mipsdkmobile.MIPSDKMobile
-import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
-import java.net.URL
-import com.milestonesys.mipsdkmobile.communication.CommunicationItem
-import androidx.appcompat.app.AlertDialog
 import android.view.Menu
-import java.net.MalformedURLException
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import com.milestonesys.mipsdkmobile.MIPSDKMobile
+import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
+import com.milestonesys.mipsdkmobile.communication.CommunicationItem
+import java.net.MalformedURLException
+import java.net.URL
 
 /**
  * An activity that connects and gets all the available cameras from server using MIPSDKMobile
@@ -48,8 +50,14 @@ class MainActivity : AppCompatActivity() {
     private val communicationItemCamera = "Camera"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeTopViewInsets(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(findViewById(R.id.scroll_root))
 
         applicationObject = application as SDKSampleApplication?
 
@@ -123,8 +131,10 @@ class MainActivity : AppCompatActivity() {
         } catch (e: MalformedURLException) {
             e.printStackTrace()
         }
-        applicationObject?.mipSdkMobile = MIPSDKMobile(this, connectionUrl, communicationAlias,
-                null, null, null, null, false)
+        applicationObject?.mipSdkMobile = MIPSDKMobile(
+            this, connectionUrl, communicationAlias,
+            null, null, null, null, false
+        )
     }
 
     /**
@@ -162,10 +172,10 @@ class MainActivity : AppCompatActivity() {
         pass = passwordField?.text.toString()
 
         editor.putString(keyAddress, address)
-                .putInt(keyPort, port)
-                .putString(keyUser, user)
-                .putString(keyPass, pass)
-                .apply()
+            .putInt(keyPort, port)
+            .putString(keyUser, user)
+            .putString(keyPass, pass)
+            .apply()
     }
 
     private fun assignLoginDetails() {
@@ -177,19 +187,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAboutDlg() {
         AlertDialog.Builder(this).setMessage(R.string.dlg_about_message)
-                .setTitle(R.string.app_long_name)
-                .create()
-                .show()
+            .setTitle(R.string.app_long_name)
+            .create()
+            .show()
     }
 
     /**
      * Execute login command with username and password
      */
     private fun logIn() {
-        applicationObject?.mipSdkMobile?.logIn(usernameField?.text.toString(), passwordField?.text.toString(), {
-            //On success getAllViewsAndCameras method is executed
-            getAllViewsAndCameras()
-        }, { handleError(it) })
+        applicationObject?.mipSdkMobile?.logIn(
+            usernameField?.text.toString(),
+            passwordField?.text.toString(),
+            {
+                //On success getAllViewsAndCameras method is executed
+                getAllViewsAndCameras()
+            },
+            { handleError(it) })
     }
 
     /**
@@ -217,7 +231,10 @@ class MainActivity : AppCompatActivity() {
     /**
      * Recursive method for filtering cameras only from response
      */
-    private fun getCamerasOnly(arrayToFilter: MutableList<CommunicationItem>, arrayListToReturn: MutableList<CommunicationItem>) {
+    private fun getCamerasOnly(
+        arrayToFilter: MutableList<CommunicationItem>,
+        arrayListToReturn: MutableList<CommunicationItem>
+    ) {
         //In the structure every item could be Camera, View or Folder and only the items with Camera type are get, if
         //it's not a camera but a container the method is called recursively
         arrayToFilter.forEach { currentItem: CommunicationItem ->
@@ -254,4 +271,3 @@ class MainActivity : AppCompatActivity() {
         Log.e("MIPSDKMobile", communicationCommand?.errorCode.toString())
     }
 }
-

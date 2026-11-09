@@ -38,7 +38,7 @@ class DateHelper {
         fun parseDateInput(input: String): Long? {
             return try {
                 dateFormat.parse(input)?.time
-            } catch (e: ParseException) {
+            } catch (_: ParseException) {
                 null
             }
         }

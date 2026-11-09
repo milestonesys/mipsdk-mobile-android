@@ -24,9 +24,9 @@ import com.milestonesys.mobilesdk.bookmarkssample.data.model.FilterModel
 import com.milestonesys.mobilesdk.bookmarkssample.databinding.FragmentBookmarksFilterBinding
 import com.milestonesys.mobilesdk.bookmarkssample.ui.viewmodel.BookmarksViewModel
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DataStatus
+import com.milestonesys.mobilesdk.bookmarkssample.utils.EdgeToEdgeHelper
 import com.milestonesys.mobilesdk.bookmarkssample.utils.SnackHelper
 import java.util.UUID
-
 
 class BookmarksFilterFragment : Fragment() {
 
@@ -80,6 +80,7 @@ class BookmarksFilterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -193,7 +194,7 @@ class BookmarksFilterFragment : Fragment() {
     private fun setupObserver() {
         onLoadingStarted()
         bookmarksViewModel.cameras.observe(viewLifecycleOwner) {
-            when (it.status) {
+            when (it?.status) {
                 DataStatus.SUCCESS -> {
                     onLoadingComplete()
                     filterByCameraOptions = arrayListOf(emptyCamera)
