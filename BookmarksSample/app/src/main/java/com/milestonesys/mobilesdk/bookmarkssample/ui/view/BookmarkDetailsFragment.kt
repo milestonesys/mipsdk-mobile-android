@@ -19,6 +19,7 @@ import com.milestonesys.mobilesdk.bookmarkssample.databinding.FragmentBookmarkDe
 import com.milestonesys.mobilesdk.bookmarkssample.ui.viewmodel.BookmarksViewModel
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DataStatus
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DateHelper
+import com.milestonesys.mobilesdk.bookmarkssample.utils.EdgeToEdgeHelper
 
 class BookmarkDetailsFragment : Fragment() {
 
@@ -80,6 +81,7 @@ class BookmarkDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -234,7 +236,7 @@ class BookmarkDetailsFragment : Fragment() {
         }
 
         bookmarksViewModel.selectedBookmark.observe(viewLifecycleOwner) {
-            when (it.status) {
+            when (it?.status) {
                 DataStatus.LOADING -> {
                     changeButtonsEnabled(false)
                     binding.groupLoading.visibility = View.VISIBLE

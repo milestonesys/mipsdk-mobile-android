@@ -1,12 +1,44 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
+
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="android:actionBarStyle">@style/TransparentActionBar</item>
+        <item name="actionBarStyle">@style/TransparentActionBar</item>
+
+        <item name="actionOverflowButtonStyle">@style/OverflowButtonWhite</item>
+        <item name="actionBarPopupTheme">@style/PopupThemeBlackText</item>
+    </style>
+
+    <style name="TransparentActionBar" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="background">@android:color/transparent</item>
+        <item name="elevation">0dp</item>
+        <item name="titleTextStyle">@style/ActionBarTitleWhite</item>
+        <item name="subtitleTextStyle">@style/ActionBarSubtitleWhite</item>
+    </style>
+
+    <style name="OverflowButtonWhite" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@android:color/white</item>
+        <item name="tint">@android:color/white</item>
+    </style>
+
+    <style name="PopupThemeBlackText" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColorPrimary">@android:color/black</item>
+    </style>
+
+    <style name="ActionBarTitleWhite" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+
+    </style>
+
+    <style name="ActionBarSubtitleWhite" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
 </resources>

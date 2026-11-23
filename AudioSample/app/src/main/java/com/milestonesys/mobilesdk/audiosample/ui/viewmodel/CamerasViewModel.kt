@@ -21,21 +21,18 @@ class CamerasViewModel(
 
     private var camerasRepository: CamerasRepository? = null
 
-    private val _cameras: MutableLiveData<Resource<List<CameraItem>>> =
-        MutableLiveData(Resource.unset(null))
+    private val _cameras = MutableLiveData<Resource<List<CameraItem>>?>()
+    val cameras: LiveData<Resource<List<CameraItem>>?> = _cameras
 
-    private val _audioUrl: MutableLiveData<Resource<URL>> =
-        MutableLiveData(Resource.unset(null))
+    private val _audioUrl = MutableLiveData<Resource<URL>?>()
+    val audioUrl: LiveData<Resource<URL>?> = _audioUrl
 
     private val _loginStatus: MutableLiveData<Resource<Boolean>> =
         MutableLiveData(Resource.unset(null))
 
-    private val _selectedCamera: MutableLiveData<CameraItem> =
-        MutableLiveData(null)
+    private val _selectedCamera: MutableLiveData<CameraItem> = MutableLiveData(null)
 
     val loginStatus: LiveData<Resource<Boolean>> get() = _loginStatus
-    val cameras: LiveData<Resource<List<CameraItem>>> get() = _cameras
-    val audioUrl: LiveData<Resource<URL>> get() = _audioUrl
     val selectedCamera: LiveData<CameraItem> get() = _selectedCamera
 
     var audioEnabled = false

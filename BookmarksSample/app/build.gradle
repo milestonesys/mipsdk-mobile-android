@@ -1,17 +1,16 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
     id 'androidx.navigation.safeargs'
 }
 
 android {
-    compileSdk 35
+    compileSdkVersion 36
 
-    namespace "com.milestonesys.mobilesdk.bookmarkssample"
+    namespace = "com.milestonesys.mobilesdk.bookmarkssample"
     defaultConfig {
-        applicationId "com.milestonesys.mobilesdk.bookmarkssample"
-        minSdk 28
-        targetSdk 35
+        applicationId = "com.milestonesys.mobilesdk.bookmarkssample"
+        minSdk 33
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
 
@@ -20,31 +19,32 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.core:core-ktx:1.18.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation "androidx.recyclerview:recyclerview:1.4.0"
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.9.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.8'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.8'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     implementation project(':mipsdkmobile')

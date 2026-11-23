@@ -25,13 +25,13 @@ class BookmarksViewModel(
 
     val loginStatus: LiveData<Resource<String>> get() = _loginStatus
     val operationStatusMessage: LiveData<String?> get() = _statusMessage
-    val bookmarks: LiveData<Resource<List<BookmarkItem>>> get() = _bookmarks
-    val selectedBookmark: LiveData<Resource<BookmarkItem>> get() = _selectedBookmark
-    val createBookmarkData: LiveData<Resource<BookmarkCreationData>> get() = _createBookmarkData
-    val cameras: LiveData<Resource<List<CameraItem>>> get() = _cameras
+    val bookmarks: LiveData<Resource<List<BookmarkItem>>?> get() = _bookmarks
+    val selectedBookmark: LiveData<Resource<BookmarkItem>?> get() = _selectedBookmark
+    val createBookmarkData: LiveData<Resource<BookmarkCreationData>?> get() = _createBookmarkData
+    val cameras: LiveData<Resource<List<CameraItem>>?> get() = _cameras
     val currentFrame: LiveData<FrameItem?> get() = _currentFrame
     val videoEnded: LiveData<Boolean> get() = _videoEnded
-    val videoError: LiveData<Boolean> get() = _videoError
+    val videoError: LiveData<Boolean?> get() = _videoError
 
     var bookmarksEnabled = false
         private set
@@ -51,10 +51,10 @@ class BookmarksViewModel(
             refreshBookmarks(true)
         }
 
-    private val _bookmarks: MutableLiveData<Resource<List<BookmarkItem>>> =
+    private val _bookmarks: MutableLiveData<Resource<List<BookmarkItem>>?> =
         MutableLiveData(Resource.unset(null))
 
-    private val _cameras: MutableLiveData<Resource<List<CameraItem>>> =
+    private val _cameras: MutableLiveData<Resource<List<CameraItem>>?> =
         MutableLiveData(Resource.unset(null))
 
     private val _loginStatus: MutableLiveData<Resource<String>> =
@@ -66,10 +66,10 @@ class BookmarksViewModel(
     private val _selectedBookmarkId: MutableLiveData<String?> =
         MutableLiveData(null)
 
-    private val _selectedBookmark: MutableLiveData<Resource<BookmarkItem>> =
+    private val _selectedBookmark: MutableLiveData<Resource<BookmarkItem>?> =
         MutableLiveData(Resource.unset(null))
 
-    private val _createBookmarkData: MutableLiveData<Resource<BookmarkCreationData>> =
+    private val _createBookmarkData: MutableLiveData<Resource<BookmarkCreationData>?> =
         MutableLiveData(Resource.unset(null))
 
     private val _currentFrame: MutableLiveData<FrameItem?> =
@@ -78,8 +78,7 @@ class BookmarksViewModel(
     private val _videoEnded: MutableLiveData<Boolean> =
         MutableLiveData(null)
 
-    private val _videoError: MutableLiveData<Boolean> =
-        MutableLiveData(null)
+    private val _videoError: MutableLiveData<Boolean?> = MutableLiveData(null)
 
     private var bookmarksRepository: BookmarksRepository? = null
     private var requestedStreamWidth = 0

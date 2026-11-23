@@ -2,23 +2,27 @@ package pttsample.mobile.milestonesys.com.pushtotalksample
 
 import android.Manifest
 import android.animation.ValueAnimator
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import android.widget.Toast
-import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
-import com.milestonesys.mipsdkmobile.communication.CommunicationItem
 import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
+import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import com.milestonesys.mipsdkmobile.communication.CommunicationCommand
+import com.milestonesys.mipsdkmobile.communication.CommunicationItem
 import pttsample.mobile.milestonesys.com.pushtotalksample.PushToTalkSampleApplication.Companion.PARAM_CAMERA_NAME
 import pttsample.mobile.milestonesys.com.pushtotalksample.databinding.ActivityPushToTalkBinding
 
 private const val NUMBER_OF_AUDIO_CHANNELS = "1"
+
 class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
     private lateinit var binding: ActivityPushToTalkBinding
+
     /**
      * Application object that contains all the data that should be shared between activities
      */
@@ -35,6 +39,7 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
     private var speakerId: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         binding = ActivityPushToTalkBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -51,6 +56,10 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
         }
 
         setupViews()
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        EdgeToEdgeHelper.setupEdgeToEdgeTopViewInsets(toolbar)
     }
 
     private fun setupViews() {
@@ -77,7 +86,8 @@ class PushToTalkActivity : AppCompatActivity(), PushToTalkErrorsCallback {
      * Check if we have permissions to take the voice from the microphone.
      */
     private fun hasMicrophonePermissions(): Boolean {
-        val audioPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+        val audioPermission =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
         return if (audioPermission == PackageManager.PERMISSION_GRANTED) {
             true
         } else {

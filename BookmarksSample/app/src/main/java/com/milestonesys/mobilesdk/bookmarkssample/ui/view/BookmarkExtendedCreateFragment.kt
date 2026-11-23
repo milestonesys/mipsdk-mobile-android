@@ -19,10 +19,9 @@ import com.milestonesys.mobilesdk.bookmarkssample.databinding.FragmentBookmarkEx
 import com.milestonesys.mobilesdk.bookmarkssample.ui.viewmodel.BookmarksViewModel
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DataStatus
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DateHelper
+import com.milestonesys.mobilesdk.bookmarkssample.utils.EdgeToEdgeHelper
 import com.milestonesys.mobilesdk.bookmarkssample.utils.SnackHelper
-import java.lang.StringBuilder
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 open class BookmarkExtendedCreateFragment : Fragment() {
@@ -135,6 +134,7 @@ open class BookmarkExtendedCreateFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        EdgeToEdgeHelper.setupEdgeToEdgeContentInsets(binding.root)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -321,7 +321,7 @@ open class BookmarkExtendedCreateFragment : Fragment() {
     protected open fun setupObserver() {
         onLoadingStarted()
         bookmarksViewModel.cameras.observe(viewLifecycleOwner) {
-            when (it.status) {
+            when (it?.status) {
                 DataStatus.SUCCESS -> {
                     onDataLoaded()
                 }
@@ -337,7 +337,7 @@ open class BookmarkExtendedCreateFragment : Fragment() {
         }
         if (createQuickBookmark) {
             bookmarksViewModel.createBookmarkData.observe(viewLifecycleOwner) {
-                when (it.status) {
+                when (it?.status) {
                     DataStatus.SUCCESS -> {
                         onDataLoaded()
                     }
@@ -389,7 +389,7 @@ open class BookmarkExtendedCreateFragment : Fragment() {
             val minute = parts[1].toInt()
             val second = parts[2].toInt()
             if (
-                hour < 0 || hour > 23 ||
+                hour !in 0..23 ||
                 minute < 0 || minute > 59 ||
                 second < 0 || second > 59
             ) return false
@@ -398,7 +398,7 @@ open class BookmarkExtendedCreateFragment : Fragment() {
             bookmarkTime.set(Calendar.MINUTE, minute)
             bookmarkTime.set(Calendar.SECOND, second)
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return false
         }
         return true

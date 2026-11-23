@@ -4,13 +4,14 @@ import android.content.Context
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.View
 import android.widget.*
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.milestonesys.mobilesdk.bookmarkssample.R
 import com.milestonesys.mobilesdk.bookmarkssample.data.model.FrameItem
 import com.milestonesys.mobilesdk.bookmarkssample.utils.DateHelper
+import androidx.core.view.isGone
+import androidx.core.view.isInvisible
 
 class VideoImageView : FrameLayout {
 
@@ -90,19 +91,19 @@ class VideoImageView : FrameLayout {
     fun notifyOnVideoError() {
         progressIndicator.visibility = GONE
 
-        errorView.visibility = View.VISIBLE
+        errorView.visibility = VISIBLE
 
-        videoButton.visibility = View.GONE
-        textViewTime.visibility = View.GONE
+        videoButton.visibility = GONE
+        textViewTime.visibility = GONE
     }
 
     fun notifyOnLoading(autoPlay: Boolean) {
         progressIndicator.visibility = VISIBLE
 
-        errorView.visibility = View.GONE
+        errorView.visibility = GONE
 
-        videoButton.visibility = View.GONE
-        textViewTime.visibility = View.GONE
+        videoButton.visibility = GONE
+        textViewTime.visibility = GONE
 
         this.autoPlay = autoPlay
     }
@@ -113,24 +114,24 @@ class VideoImageView : FrameLayout {
 
         progressIndicator.visibility = GONE
 
-        errorView.visibility = View.GONE
+        errorView.visibility = GONE
 
-        if (videoButton.visibility == View.GONE) {
+        if (videoButton.isGone) {
             videoButtonState = if (autoPlay) VideoButtonState.PAUSE else VideoButtonState.PLAY
-            videoButton.visibility = View.VISIBLE
-            textViewTime.visibility = View.VISIBLE
+            videoButton.visibility = VISIBLE
+            textViewTime.visibility = VISIBLE
         }
 
         updateImageParams()
     }
 
     private fun changeOverlayVisibility(forceShow: Boolean = false) {
-        if (videoButton.visibility == View.INVISIBLE || forceShow) {
-            videoButton.visibility = View.VISIBLE
-            textViewTime.visibility = View.VISIBLE
+        if (videoButton.isInvisible || forceShow) {
+            videoButton.visibility = VISIBLE
+            textViewTime.visibility = VISIBLE
         } else {
-            videoButton.visibility = View.INVISIBLE
-            textViewTime.visibility = View.INVISIBLE
+            videoButton.visibility = INVISIBLE
+            textViewTime.visibility = INVISIBLE
         }
     }
 
@@ -140,10 +141,12 @@ class VideoImageView : FrameLayout {
                 onPlayClickListener?.onClick(button)
                 VideoButtonState.PAUSE
             }
+
             VideoButtonState.PAUSE -> {
                 onPauseClickListener?.onClick(button)
                 VideoButtonState.PLAY
             }
+
             VideoButtonState.REPLAY -> {
                 onReplayClickListener?.onClick(button)
                 VideoButtonState.PAUSE

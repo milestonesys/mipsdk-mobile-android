@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".VideoPushActivity"
-            android:screenOrientation="landscape"/>
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

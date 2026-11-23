@@ -1,52 +1,53 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
     id 'androidx.navigation.safeargs'
 }
 
 android {
-    compileSdk 35
-    namespace "com.milestonesys.mobilesdk.audiosample"
+    compileSdkVersion 36
+    namespace = "com.milestonesys.mobilesdk.audiosample"
     defaultConfig {
-        applicationId "com.milestonesys.mobilesdk.audiosample"
-        minSdkVersion 28
-        targetSdkVersion 35
+        applicationId = "com.milestonesys.mobilesdk.audiosample"
+        minSdkVersion 33
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = '21'
-    }
 }
+
+kotlin {
+    jvmToolchain(21)
+}
+
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.core:core-ktx:1.16.0'
-    implementation 'androidx.fragment:fragment-ktx:1.8.8'
+    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.10.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation "androidx.navigation:navigation-fragment-ktx:2.9.0"
-    implementation "androidx.navigation:navigation-ui-ktx:2.9.0"
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation "com.google.android.exoplayer:exoplayer:2.19.1"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1'
+    implementation "androidx.navigation:navigation-fragment-ktx:2.9.8"
+    implementation "androidx.navigation:navigation-ui-ktx:2.9.8"
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation "androidx.media3:media3-exoplayer:1.10.0"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
     
     implementation project(':mipsdkmobile')
 }
